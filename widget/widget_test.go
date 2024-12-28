@@ -6,13 +6,13 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/f32"
-	"gioui.org/io/input"
-	"gioui.org/io/pointer"
-	"gioui.org/io/semantic"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/widget"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/io/semantic"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/widget"
 )
 
 func TestBool(t *testing.T) {

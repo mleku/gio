@@ -5,11 +5,11 @@ package widget
 import (
 	"image"
 
-	"gioui.org/gesture"
-	"gioui.org/io/pointer"
-	"gioui.org/layout"
-	"gioui.org/op/clip"
-	"gioui.org/unit"
+	"gio.realy.lol/gesture"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op/clip"
+	"gio.realy.lol/unit"
 )
 
 // Float is for selecting a value in a range.

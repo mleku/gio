@@ -5,7 +5,7 @@ package gpu
 import (
 	"fmt"
 
-	"gioui.org/internal/f32"
+	"gio.realy.lol/internal/f32"
 )
 
 type textureCacheKey struct {

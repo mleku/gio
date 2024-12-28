@@ -11,7 +11,7 @@ import (
 	"errors"
 	"unsafe"
 
-	"gioui.org/internal/egl"
+	"gio.realy.lol/internal/egl"
 )
 
 /*

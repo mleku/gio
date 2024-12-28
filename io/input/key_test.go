@@ -6,12 +6,12 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/op"
-	"gioui.org/op/clip"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/clip"
 )
 
 func TestAllMatchKeyFilter(t *testing.T) {

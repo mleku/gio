@@ -8,12 +8,12 @@ import (
 	"reflect"
 	"testing"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/pointer"
-	"gioui.org/io/semantic"
-	"gioui.org/op"
-	"gioui.org/op/clip"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/io/semantic"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/clip"
 )
 
 func TestEmptySemantics(t *testing.T) {

@@ -18,23 +18,23 @@ import (
 	"time"
 	"unsafe"
 
-	"gioui.org/gpu/internal/driver"
-	"gioui.org/internal/byteslice"
-	"gioui.org/internal/f32"
-	"gioui.org/internal/f32color"
-	"gioui.org/internal/ops"
-	"gioui.org/internal/scene"
-	"gioui.org/internal/stroke"
-	"gioui.org/layout"
-	"gioui.org/op"
+	"gio.realy.lol/gpu/internal/driver"
+	"gio.realy.lol/internal/byteslice"
+	"gio.realy.lol/internal/f32"
+	"gio.realy.lol/internal/f32color"
+	"gio.realy.lol/internal/ops"
+	"gio.realy.lol/internal/scene"
+	"gio.realy.lol/internal/stroke"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
 	"gioui.org/shader"
 	"gioui.org/shader/gio"
 
 	// Register backends.
-	_ "gioui.org/gpu/internal/d3d11"
-	_ "gioui.org/gpu/internal/metal"
-	_ "gioui.org/gpu/internal/opengl"
-	_ "gioui.org/gpu/internal/vulkan"
+	_ "gio.realy.lol/gpu/internal/d3d11"
+	_ "gio.realy.lol/gpu/internal/metal"
+	_ "gio.realy.lol/gpu/internal/opengl"
+	_ "gio.realy.lol/gpu/internal/vulkan"
 )
 
 type GPU interface {

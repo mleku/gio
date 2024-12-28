@@ -6,7 +6,7 @@
 package headless
 
 import (
-	"gioui.org/internal/egl"
+	"gio.realy.lol/internal/egl"
 )
 
 func init() {

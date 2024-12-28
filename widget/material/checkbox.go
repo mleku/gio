@@ -3,9 +3,9 @@
 package material
 
 import (
-	"gioui.org/io/semantic"
-	"gioui.org/layout"
-	"gioui.org/widget"
+	"gio.realy.lol/io/semantic"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/widget"
 )
 
 type CheckBoxStyle struct {

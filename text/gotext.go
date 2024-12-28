@@ -20,14 +20,14 @@ import (
 	"golang.org/x/image/math/fixed"
 	"golang.org/x/text/unicode/bidi"
 
-	"gioui.org/f32"
-	giofont "gioui.org/font"
-	"gioui.org/font/opentype"
-	"gioui.org/internal/debug"
-	"gioui.org/io/system"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
+	"gio.realy.lol/f32"
+	giofont "gio.realy.lol/font"
+	"gio.realy.lol/font/opentype"
+	"gio.realy.lol/internal/debug"
+	"gio.realy.lol/io/system"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/clip"
+	"gio.realy.lol/op/paint"
 )
 
 // document holds a collection of shaped lines and alignment information for

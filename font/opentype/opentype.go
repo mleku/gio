@@ -15,7 +15,7 @@ import (
 	"fmt"
 	_ "image/png"
 
-	giofont "gioui.org/font"
+	giofont "gio.realy.lol/font"
 	fontapi "github.com/go-text/typesetting/font"
 	"github.com/go-text/typesetting/font/opentype"
 )

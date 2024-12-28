@@ -4,8 +4,8 @@
 package event
 
 import (
-	"gioui.org/internal/ops"
-	"gioui.org/op"
+	"gio.realy.lol/internal/ops"
+	"gio.realy.lol/op"
 )
 
 // Tag is the stable identifier for an event handler.

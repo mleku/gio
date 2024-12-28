@@ -7,11 +7,11 @@ import (
 	"image/color"
 	"image/draw"
 
-	"gioui.org/internal/f32color"
-	"gioui.org/layout"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/unit"
+	"gio.realy.lol/internal/f32color"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op/clip"
+	"gio.realy.lol/op/paint"
+	"gio.realy.lol/unit"
 
 	"golang.org/x/exp/shiny/iconvg"
 )

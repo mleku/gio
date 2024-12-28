@@ -5,12 +5,12 @@ package widget
 import (
 	"image"
 
-	"gioui.org/f32"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/unit"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/clip"
+	"gio.realy.lol/op/paint"
+	"gio.realy.lol/unit"
 )
 
 // Image is a widget that displays an image.

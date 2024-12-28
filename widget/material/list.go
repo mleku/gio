@@ -7,13 +7,13 @@ import (
 	"image/color"
 	"math"
 
-	"gioui.org/io/pointer"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/unit"
-	"gioui.org/widget"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/clip"
+	"gio.realy.lol/op/paint"
+	"gio.realy.lol/unit"
+	"gio.realy.lol/widget"
 )
 
 // fromListPosition converts a layout.Position into two floats representing

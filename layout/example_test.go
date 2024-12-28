@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"image"
 
-	"gioui.org/layout"
-	"gioui.org/op"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
 )
 
 func ExampleInset() {

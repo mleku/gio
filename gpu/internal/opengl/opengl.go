@@ -12,8 +12,8 @@ import (
 	"time"
 	"unsafe"
 
-	"gioui.org/gpu/internal/driver"
-	"gioui.org/internal/gl"
+	"gio.realy.lol/gpu/internal/driver"
+	"gio.realy.lol/internal/gl"
 	"gioui.org/shader"
 )
 

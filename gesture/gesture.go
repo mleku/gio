@@ -15,14 +15,14 @@ import (
 	"runtime"
 	"time"
 
-	"gioui.org/f32"
-	"gioui.org/internal/fling"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/internal/fling"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/op"
+	"gio.realy.lol/unit"
 )
 
 // The duration is somewhat arbitrary.

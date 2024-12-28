@@ -5,14 +5,14 @@ package material
 import (
 	"image/color"
 
-	"gioui.org/font"
-	"gioui.org/internal/f32color"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/paint"
-	"gioui.org/text"
-	"gioui.org/unit"
-	"gioui.org/widget"
+	"gio.realy.lol/font"
+	"gio.realy.lol/internal/f32color"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/paint"
+	"gio.realy.lol/text"
+	"gio.realy.lol/unit"
+	"gio.realy.lol/widget"
 )
 
 // LabelStyle configures the presentation of text. If the State field is set, the

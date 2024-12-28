@@ -7,14 +7,14 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/op"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/op"
 
-	"gioui.org/gpu"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/unit"
+	"gio.realy.lol/gpu"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/io/system"
+	"gio.realy.lol/unit"
 )
 
 // errOutOfDate is reported when the GPU surface dimensions or properties no

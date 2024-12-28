@@ -18,17 +18,17 @@ import (
 
 	syscall "golang.org/x/sys/windows"
 
-	"gioui.org/app/internal/windows"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.realy.lol/app/internal/windows"
+	"gio.realy.lol/op"
+	"gio.realy.lol/unit"
 	gowindows "golang.org/x/sys/windows"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/io/system"
+	"gio.realy.lol/io/transfer"
 )
 
 type Win32ViewEvent struct {

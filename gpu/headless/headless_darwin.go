@@ -5,8 +5,8 @@ package headless
 import (
 	"errors"
 
-	"gioui.org/gpu"
-	_ "gioui.org/internal/cocoainit"
+	"gio.realy.lol/gpu"
+	_ "gio.realy.lol/internal/cocoainit"
 )
 
 /*

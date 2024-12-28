@@ -9,12 +9,12 @@ import (
 	"testing"
 
 	nsareg "eliasnaur.com/font/noto/sans/arabic/regular"
-	"gioui.org/font"
-	"gioui.org/font/opentype"
-	"gioui.org/gpu/headless"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/text"
+	"gio.realy.lol/font"
+	"gio.realy.lol/font/opentype"
+	"gio.realy.lol/gpu/headless"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/text"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/math/fixed"
 )

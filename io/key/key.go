@@ -6,10 +6,10 @@ package key
 import (
 	"strings"
 
-	"gioui.org/f32"
-	"gioui.org/internal/ops"
-	"gioui.org/io/event"
-	"gioui.org/op"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/internal/ops"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/op"
 )
 
 // Filter matches any [Event] that matches the parameters.

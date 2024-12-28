@@ -4,15 +4,15 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/f32"
-	"gioui.org/io/semantic"
-	"gioui.org/io/system"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/unit"
-	"gioui.org/widget"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/semantic"
+	"gio.realy.lol/io/system"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/clip"
+	"gio.realy.lol/op/paint"
+	"gio.realy.lol/unit"
+	"gio.realy.lol/widget"
 )
 
 // DecorationsStyle provides the style elements for Decorations.

@@ -5,8 +5,8 @@ import (
 	"unicode"
 	"unicode/utf16"
 
-	"gioui.org/io/input"
-	"gioui.org/io/key"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/io/key"
 )
 
 type editorState struct {

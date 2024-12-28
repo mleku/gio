@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"gioui.org/gpu"
+	"gio.realy.lol/gpu"
 )
 
 type Context struct {

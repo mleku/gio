@@ -5,11 +5,11 @@ package widget
 import (
 	"image"
 
-	"gioui.org/gesture"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/layout"
-	"gioui.org/op"
+	"gio.realy.lol/gesture"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
 )
 
 // Scrollbar holds the persistent state for an area that can

@@ -136,18 +136,18 @@ import (
 	"unicode/utf16"
 	"unsafe"
 
-	"gioui.org/internal/f32color"
-	"gioui.org/op"
+	"gio.realy.lol/internal/f32color"
+	"gio.realy.lol/op"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/io/semantic"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
-	"gioui.org/unit"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/io/semantic"
+	"gio.realy.lol/io/system"
+	"gio.realy.lol/io/transfer"
+	"gio.realy.lol/unit"
 )
 
 type window struct {

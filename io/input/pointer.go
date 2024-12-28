@@ -6,14 +6,14 @@ import (
 	"image"
 	"io"
 
-	"gioui.org/f32"
-	f32internal "gioui.org/internal/f32"
-	"gioui.org/internal/ops"
-	"gioui.org/io/event"
-	"gioui.org/io/pointer"
-	"gioui.org/io/semantic"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
+	"gio.realy.lol/f32"
+	f32internal "gio.realy.lol/internal/f32"
+	"gio.realy.lol/internal/ops"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/io/semantic"
+	"gio.realy.lol/io/system"
+	"gio.realy.lol/io/transfer"
 )
 
 type pointerQueue struct {

@@ -6,7 +6,7 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/internal/ops"
+	"gio.realy.lol/internal/ops"
 )
 
 func TestTransformChecks(t *testing.T) {

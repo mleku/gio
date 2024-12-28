@@ -8,12 +8,12 @@ import (
 	"image"
 	"math"
 
-	"gioui.org/f32"
-	f32internal "gioui.org/internal/f32"
-	"gioui.org/internal/ops"
-	"gioui.org/internal/scene"
-	"gioui.org/internal/stroke"
-	"gioui.org/op"
+	"gio.realy.lol/f32"
+	f32internal "gio.realy.lol/internal/f32"
+	"gio.realy.lol/internal/ops"
+	"gio.realy.lol/internal/scene"
+	"gio.realy.lol/internal/stroke"
+	"gio.realy.lol/op"
 )
 
 // Op represents a clip area. Op intersects the current clip area with

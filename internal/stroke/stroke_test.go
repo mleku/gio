@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"gioui.org/internal/f32"
+	"gio.realy.lol/internal/f32"
 )
 
 func BenchmarkSplitCubic(b *testing.B) {

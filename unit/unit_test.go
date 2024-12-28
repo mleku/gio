@@ -5,7 +5,7 @@ package unit_test
 import (
 	"testing"
 
-	"gioui.org/unit"
+	"gio.realy.lol/unit"
 )
 
 func TestMetric_DpToSp(t *testing.T) {

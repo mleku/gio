@@ -8,15 +8,15 @@ import (
 	"io"
 	"strings"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/pointer"
-	"gioui.org/io/transfer"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/widget"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/io/pointer"
+	"gio.realy.lol/io/transfer"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/clip"
+	"gio.realy.lol/widget"
 )
 
 func ExampleClickable_passthrough() {

@@ -9,15 +9,15 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"gioui.org/font"
-	"gioui.org/font/gofont"
-	"gioui.org/io/input"
-	"gioui.org/io/key"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/text"
-	"gioui.org/unit"
-	"gioui.org/widget"
+	"gio.realy.lol/font"
+	"gio.realy.lol/font/gofont"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/text"
+	"gio.realy.lol/unit"
+	"gio.realy.lol/widget"
 )
 
 func FuzzIME(f *testing.F) {

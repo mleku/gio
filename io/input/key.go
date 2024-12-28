@@ -6,9 +6,9 @@ import (
 	"image"
 	"sort"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/io/event"
+	"gio.realy.lol/io/key"
 )
 
 // EditorState represents the state of an editor needed by input handlers.

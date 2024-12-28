@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"gioui.org/io/input"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/unit"
 )
 
 // extraArgs contains extra arguments to append to

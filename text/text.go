@@ -5,7 +5,7 @@ package text
 import (
 	"fmt"
 
-	"gioui.org/io/system"
+	"gio.realy.lol/io/system"
 	"golang.org/x/image/math/fixed"
 )
 

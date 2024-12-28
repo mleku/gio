@@ -3,8 +3,8 @@ package system
 import (
 	"strings"
 
-	"gioui.org/internal/ops"
-	"gioui.org/op"
+	"gio.realy.lol/internal/ops"
+	"gio.realy.lol/op"
 )
 
 // ActionAreaOp makes the current clip area available for

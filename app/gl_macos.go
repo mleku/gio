@@ -11,8 +11,8 @@ import (
 
 	"unsafe"
 
-	"gioui.org/gpu"
-	"gioui.org/internal/gl"
+	"gio.realy.lol/gpu"
+	"gio.realy.lol/internal/gl"
 )
 
 /*

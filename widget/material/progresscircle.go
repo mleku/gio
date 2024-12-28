@@ -7,9 +7,9 @@ import (
 	"image/color"
 	"math"
 
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/paint"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/op/paint"
 )
 
 type ProgressCircleStyle struct {

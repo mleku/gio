@@ -29,9 +29,9 @@ import (
 	"encoding/binary"
 	"math"
 
-	"gioui.org/internal/f32"
-	"gioui.org/internal/ops"
-	"gioui.org/internal/scene"
+	"gio.realy.lol/internal/f32"
+	"gio.realy.lol/internal/ops"
+	"gio.realy.lol/internal/scene"
 )
 
 // The following are copies of types from op/clip to avoid a circular import of

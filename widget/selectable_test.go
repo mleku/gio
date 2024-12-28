@@ -5,14 +5,14 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/font"
-	"gioui.org/font/gofont"
-	"gioui.org/io/input"
-	"gioui.org/io/key"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/text"
-	"gioui.org/unit"
+	"gio.realy.lol/font"
+	"gio.realy.lol/font/gofont"
+	"gio.realy.lol/io/input"
+	"gio.realy.lol/io/key"
+	"gio.realy.lol/layout"
+	"gio.realy.lol/op"
+	"gio.realy.lol/text"
+	"gio.realy.lol/unit"
 )
 
 func TestSelectableZeroValue(t *testing.T) {

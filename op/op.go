@@ -68,8 +68,8 @@ import (
 	"math"
 	"time"
 
-	"gioui.org/f32"
-	"gioui.org/internal/ops"
+	"gio.realy.lol/f32"
+	"gio.realy.lol/internal/ops"
 )
 
 // Ops holds a list of operations. Operations are stored in

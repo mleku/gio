@@ -7,7 +7,7 @@ import (
 	"image"
 	"time"
 
-	"gioui.org/internal/f32color"
+	"gio.realy.lol/internal/f32color"
 	"gioui.org/shader"
 )
 
