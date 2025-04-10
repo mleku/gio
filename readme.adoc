@@ -1,0 +1,17 @@
+= gio.mleku.dev
+
+within gioui.org there is three directories labeled `internal` and these contain code that non-internal libraries within it depend on.
+
+you cannot simply copy the widget directory into a new repo and use it. it refuses to compile because it says it depends on something something internal.
+
+this repo is basically a simple script that purges that insanity, rewrites all the imports to point to this new location, and can be updated freely at any time, and thus kept in sync with upstream, without the limitation of not being able to use these occluded packages.
+
+i have been complaining about this to the devs of the link:https://gioui.org[upstream] for a few years now and i should have just spent an afternoon doing what i just did now.
+
+you're welcome!
+
+with this you can make a whole new widget library BASED on the one in this instead of dancing around it.
+
+it was not difficult to achieve, with rudimentary skills in standard unix shell commands.
+
+whatever you could do with gioui.org, you now can do with gio.mleku.dev/gio except without the retarded limitations that the upstream doesn't get is a problem.
