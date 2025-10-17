@@ -5,7 +5,7 @@ package clipboard
 import (
 	"io"
 
-	"gioui.org/io/event"
+	"gio.mleku.dev/io/event"
 )
 
 // WriteCmd copies Text to the clipboard.

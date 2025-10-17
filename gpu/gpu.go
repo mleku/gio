@@ -19,23 +19,23 @@ import (
 	"time"
 	"unsafe"
 
-	"gioui.org/gpu/internal/driver"
-	"gioui.org/internal/byteslice"
-	"gioui.org/internal/f32"
-	"gioui.org/internal/f32color"
-	"gioui.org/internal/ops"
-	"gioui.org/internal/scene"
-	"gioui.org/internal/stroke"
-	"gioui.org/layout"
-	"gioui.org/op"
+	"gio.mleku.dev/gpu/internal/driver"
+	"gio.mleku.dev/internal/byteslice"
+	"gio.mleku.dev/internal/f32"
+	"gio.mleku.dev/internal/f32color"
+	"gio.mleku.dev/internal/ops"
+	"gio.mleku.dev/internal/scene"
+	"gio.mleku.dev/internal/stroke"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
 	"gioui.org/shader"
 	"gioui.org/shader/gio"
 
 	// Register backends.
-	_ "gioui.org/gpu/internal/d3d11"
-	_ "gioui.org/gpu/internal/metal"
-	_ "gioui.org/gpu/internal/opengl"
-	_ "gioui.org/gpu/internal/vulkan"
+	_ "gio.mleku.dev/gpu/internal/d3d11"
+	_ "gio.mleku.dev/gpu/internal/metal"
+	_ "gio.mleku.dev/gpu/internal/opengl"
+	_ "gio.mleku.dev/gpu/internal/vulkan"
 )
 
 type GPU interface {

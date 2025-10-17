@@ -136,18 +136,18 @@ import (
 	"unicode/utf16"
 	"unsafe"
 
-	"gioui.org/internal/f32color"
-	"gioui.org/op"
+	"gio.mleku.dev/internal/f32color"
+	"gio.mleku.dev/op"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/io/semantic"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
-	"gioui.org/unit"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/input"
+	"gio.mleku.dev/io/key"
+	"gio.mleku.dev/io/pointer"
+	"gio.mleku.dev/io/semantic"
+	"gio.mleku.dev/io/system"
+	"gio.mleku.dev/io/transfer"
+	"gio.mleku.dev/unit"
 )
 
 type window struct {

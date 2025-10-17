@@ -5,9 +5,9 @@ import (
 	"image/color"
 	"testing"
 
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
+	"gio.mleku.dev/op/paint"
 )
 
 func TestZeroEllipse(t *testing.T) {

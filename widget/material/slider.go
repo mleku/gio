@@ -6,13 +6,13 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/internal/f32color"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/unit"
-	"gioui.org/widget"
+	"gio.mleku.dev/internal/f32color"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
+	"gio.mleku.dev/op/paint"
+	"gio.mleku.dev/unit"
+	"gio.mleku.dev/widget"
 )
 
 // Slider is for selecting a value in a range.

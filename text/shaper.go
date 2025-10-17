@@ -8,10 +8,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	giofont "gioui.org/font"
-	"gioui.org/io/system"
-	"gioui.org/op"
-	"gioui.org/op/clip"
+	giofont "gio.mleku.dev/font"
+	"gio.mleku.dev/io/system"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
 	"github.com/go-text/typesetting/font"
 	"golang.org/x/image/math/fixed"
 )

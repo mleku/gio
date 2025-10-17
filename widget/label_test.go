@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"gioui.org/text"
+	"gio.mleku.dev/text"
 	"golang.org/x/image/math/fixed"
 )
 

@@ -5,8 +5,8 @@ package widget
 import (
 	"image"
 
-	"gioui.org/f32"
-	"gioui.org/layout"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/layout"
 )
 
 // Fit scales a widget to fit and clip to the constraints.

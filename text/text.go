@@ -5,7 +5,7 @@ package text
 import (
 	"fmt"
 
-	"gioui.org/io/system"
+	"gio.mleku.dev/io/system"
 	"golang.org/x/image/math/fixed"
 )
 

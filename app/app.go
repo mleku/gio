@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"gioui.org/io/input"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.mleku.dev/io/input"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/unit"
 )
 
 // extraArgs contains extra arguments to append to

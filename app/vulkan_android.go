@@ -8,8 +8,8 @@ package app
 import (
 	"unsafe"
 
-	"gioui.org/gpu"
-	"gioui.org/internal/vk"
+	"gio.mleku.dev/gpu"
+	"gio.mleku.dev/internal/vk"
 )
 
 type wlVkContext struct {

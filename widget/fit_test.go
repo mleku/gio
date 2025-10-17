@@ -6,8 +6,8 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/f32"
-	"gioui.org/layout"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/layout"
 )
 
 func TestFit(t *testing.T) {

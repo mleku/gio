@@ -10,7 +10,7 @@ package app
 import (
 	"unsafe"
 
-	"gioui.org/internal/egl"
+	"gio.mleku.dev/internal/egl"
 )
 
 type x11Context struct {

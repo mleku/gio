@@ -1,4 +1,4 @@
-module gioui.org
+module gio.mleku.dev
 
 go 1.25.0
 

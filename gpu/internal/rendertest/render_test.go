@@ -10,11 +10,11 @@ import (
 
 	"golang.org/x/image/colornames"
 
-	"gioui.org/internal/f32"
-	"gioui.org/internal/f32color"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
+	"gio.mleku.dev/internal/f32"
+	"gio.mleku.dev/internal/f32color"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
+	"gio.mleku.dev/op/paint"
 )
 
 func TestTransformMacro(t *testing.T) {

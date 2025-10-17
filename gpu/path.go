@@ -11,10 +11,10 @@ import (
 	"math"
 	"unsafe"
 
-	"gioui.org/gpu/internal/driver"
-	"gioui.org/internal/byteslice"
-	"gioui.org/internal/f32"
-	"gioui.org/internal/f32color"
+	"gio.mleku.dev/gpu/internal/driver"
+	"gio.mleku.dev/internal/byteslice"
+	"gio.mleku.dev/internal/f32"
+	"gio.mleku.dev/internal/f32color"
 	"gioui.org/shader"
 	"gioui.org/shader/gio"
 )

@@ -12,7 +12,7 @@ import (
 	"slices"
 	"strings"
 
-	"gioui.org/gpu"
+	"gio.mleku.dev/gpu"
 )
 
 type Context struct {

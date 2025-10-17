@@ -6,8 +6,8 @@ import (
 	"io"
 	"slices"
 
-	"gioui.org/io/clipboard"
-	"gioui.org/io/event"
+	"gio.mleku.dev/io/clipboard"
+	"gio.mleku.dev/io/event"
 )
 
 // clipboardState contains the state for clipboard event routing.

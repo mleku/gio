@@ -3,10 +3,11 @@
 package clip
 
 import (
-	"gioui.org/f32"
-	"gioui.org/op"
 	"math"
 	"testing"
+
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/op"
 )
 
 func TestPath_MoveTo_LineTo(t *testing.T) {

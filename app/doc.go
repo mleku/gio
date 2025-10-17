@@ -44,7 +44,7 @@ For example, to display a blank but otherwise functional window:
 
 	package main
 
-	import "gioui.org/app"
+	import "gio.mleku.dev/app"
 
 	func main() {
 		go func() {

@@ -13,7 +13,7 @@ import "C"
 import (
 	"unsafe"
 
-	"gioui.org/internal/egl"
+	"gio.mleku.dev/internal/egl"
 )
 
 type androidContext struct {

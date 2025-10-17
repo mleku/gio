@@ -5,10 +5,10 @@ package layout
 import (
 	"time"
 
-	"gioui.org/io/input"
-	"gioui.org/io/system"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.mleku.dev/io/input"
+	"gio.mleku.dev/io/system"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/unit"
 )
 
 // Context carries the state needed by almost all layouts and widgets.

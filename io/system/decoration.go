@@ -3,8 +3,8 @@ package system
 import (
 	"strings"
 
-	"gioui.org/internal/ops"
-	"gioui.org/op"
+	"gio.mleku.dev/internal/ops"
+	"gio.mleku.dev/op"
 )
 
 // ActionAreaOp makes the current clip area available for

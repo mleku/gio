@@ -4,14 +4,14 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/pointer"
-	"gioui.org/io/transfer"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/input"
+	"gio.mleku.dev/io/pointer"
+	"gio.mleku.dev/io/transfer"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
 )
 
 func TestDraggable(t *testing.T) {

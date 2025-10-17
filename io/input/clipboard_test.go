@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"gioui.org/io/clipboard"
-	"gioui.org/io/transfer"
-	"gioui.org/op"
+	"gio.mleku.dev/io/clipboard"
+	"gio.mleku.dev/io/transfer"
+	"gio.mleku.dev/op"
 )
 
 func TestClipboardDuplicateEvent(t *testing.T) {

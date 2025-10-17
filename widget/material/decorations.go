@@ -4,15 +4,15 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/f32"
-	"gioui.org/io/semantic"
-	"gioui.org/io/system"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/unit"
-	"gioui.org/widget"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/io/semantic"
+	"gio.mleku.dev/io/system"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
+	"gio.mleku.dev/op/paint"
+	"gio.mleku.dev/unit"
+	"gio.mleku.dev/widget"
 )
 
 // DecorationsStyle provides the style elements for Decorations.

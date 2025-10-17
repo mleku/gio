@@ -15,14 +15,14 @@ import (
 	"runtime"
 	"time"
 
-	"gioui.org/f32"
-	"gioui.org/internal/fling"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/internal/fling"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/input"
+	"gio.mleku.dev/io/key"
+	"gio.mleku.dev/io/pointer"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/unit"
 )
 
 // The duration is somewhat arbitrary.

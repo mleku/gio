@@ -12,8 +12,8 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"gioui.org/gpu/internal/driver"
-	"gioui.org/internal/d3d11"
+	"gio.mleku.dev/gpu/internal/driver"
+	"gio.mleku.dev/internal/d3d11"
 	"gioui.org/shader"
 )
 

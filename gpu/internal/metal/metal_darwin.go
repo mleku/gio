@@ -8,7 +8,7 @@ import (
 	"image"
 	"unsafe"
 
-	"gioui.org/gpu/internal/driver"
+	"gio.mleku.dev/gpu/internal/driver"
 	"gioui.org/shader"
 )
 

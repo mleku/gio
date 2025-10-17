@@ -11,7 +11,7 @@ import (
 	"math"
 	"unsafe"
 
-	"gioui.org/internal/f32"
+	"gio.mleku.dev/internal/f32"
 )
 
 type Op uint32

@@ -9,7 +9,7 @@ import (
 	"math"
 	"sort"
 
-	"gioui.org/text"
+	"gio.mleku.dev/text"
 	"github.com/go-text/typesetting/segmenter"
 	"golang.org/x/image/math/fixed"
 )

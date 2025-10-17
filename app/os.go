@@ -7,14 +7,14 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/op"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/key"
+	"gio.mleku.dev/op"
 
-	"gioui.org/gpu"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/unit"
+	"gio.mleku.dev/gpu"
+	"gio.mleku.dev/io/pointer"
+	"gio.mleku.dev/io/system"
+	"gio.mleku.dev/unit"
 )
 
 // errOutOfDate is reported when the GPU surface dimensions or properties no

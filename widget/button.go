@@ -6,13 +6,13 @@ import (
 	"image"
 	"time"
 
-	"gioui.org/gesture"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/io/semantic"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
+	"gio.mleku.dev/gesture"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/key"
+	"gio.mleku.dev/io/semantic"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
 )
 
 // Clickable represents a clickable area.

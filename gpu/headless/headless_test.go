@@ -7,10 +7,10 @@ import (
 	"image/color"
 	"testing"
 
-	"gioui.org/internal/f32color"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
+	"gio.mleku.dev/internal/f32color"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
+	"gio.mleku.dev/op/paint"
 )
 
 func TestHeadless(t *testing.T) {

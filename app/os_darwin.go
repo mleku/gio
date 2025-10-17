@@ -50,7 +50,7 @@ import (
 	"unicode/utf16"
 	"unsafe"
 
-	"gioui.org/io/pointer"
+	"gio.mleku.dev/io/pointer"
 )
 
 // displayLink is the state for a display link (CVDisplayLinkRef on macOS,

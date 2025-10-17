@@ -11,7 +11,7 @@ import (
 	"errors"
 	"unsafe"
 
-	"gioui.org/internal/egl"
+	"gio.mleku.dev/internal/egl"
 )
 
 /*

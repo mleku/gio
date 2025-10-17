@@ -7,8 +7,8 @@ import (
 	"unicode/utf16"
 	"unicode/utf8"
 
-	"gioui.org/io/input"
-	"gioui.org/io/key"
+	"gio.mleku.dev/io/input"
+	"gio.mleku.dev/io/key"
 )
 
 type editorState struct {

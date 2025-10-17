@@ -5,15 +5,15 @@ package widget
 import (
 	"image"
 
-	"gioui.org/f32"
-	"gioui.org/font"
-	"gioui.org/io/semantic"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/text"
-	"gioui.org/unit"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/font"
+	"gio.mleku.dev/io/semantic"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/op/clip"
+	"gio.mleku.dev/op/paint"
+	"gio.mleku.dev/text"
+	"gio.mleku.dev/unit"
 
 	"golang.org/x/image/math/fixed"
 )

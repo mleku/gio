@@ -5,7 +5,7 @@ package gpu
 import (
 	"testing"
 
-	"gioui.org/internal/f32"
+	"gio.mleku.dev/internal/f32"
 )
 
 func BenchmarkEncodeQuadTo(b *testing.B) {

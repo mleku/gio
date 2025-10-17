@@ -16,16 +16,16 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"gioui.org/internal/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.mleku.dev/internal/f32"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/key"
+	"gio.mleku.dev/io/pointer"
+	"gio.mleku.dev/io/system"
+	"gio.mleku.dev/io/transfer"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/unit"
 
-	_ "gioui.org/internal/cocoainit"
+	_ "gio.mleku.dev/internal/cocoainit"
 )
 
 /*

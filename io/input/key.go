@@ -7,9 +7,9 @@ import (
 	"slices"
 	"sort"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/key"
 )
 
 // EditorState represents the state of an editor needed by input handlers.

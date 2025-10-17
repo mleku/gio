@@ -18,17 +18,17 @@ import (
 
 	syscall "golang.org/x/sys/windows"
 
-	"gioui.org/app/internal/windows"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"gio.mleku.dev/app/internal/windows"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/unit"
 	gowindows "golang.org/x/sys/windows"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/io/event"
+	"gio.mleku.dev/io/key"
+	"gio.mleku.dev/io/pointer"
+	"gio.mleku.dev/io/system"
+	"gio.mleku.dev/io/transfer"
 )
 
 type Win32ViewEvent struct {
