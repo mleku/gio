@@ -1333,6 +1333,14 @@ func (w *window) WriteClipboard(mime string, s []byte) {
 	})
 }
 
+func (w *window) ReadPrimaryClipboard() {
+	// Primary clipboard not supported on Android
+}
+
+func (w *window) WritePrimaryClipboard(text string) {
+	// Primary clipboard not supported on Android
+}
+
 func (w *window) ReadClipboard() {
 	runInJVM(javaVM(), func(env *C.JNIEnv) {
 		c, err := callStaticObjectMethod(env, android.gioCls, android.mreadClipboard,

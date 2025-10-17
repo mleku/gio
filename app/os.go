@@ -191,6 +191,10 @@ type driver interface {
 	ReadClipboard()
 	// WriteClipboard requests a clipboard write.
 	WriteClipboard(mime string, s []byte)
+	// ReadPrimaryClipboard requests the primary clipboard content.
+	ReadPrimaryClipboard()
+	// WritePrimaryClipboard requests a primary clipboard write.
+	WritePrimaryClipboard(text string)
 	// Configure the window.
 	Configure([]Option)
 	// SetCursor updates the current cursor to name.

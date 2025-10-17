@@ -102,6 +102,7 @@ type ClickEvent struct {
 	// NumClicks records successive clicks occurring
 	// within a short duration of each other.
 	NumClicks int
+	Button    pointer.Buttons
 }
 
 type ClickKind uint8
@@ -147,6 +148,9 @@ const (
 	// KindCancel is reported when the gesture is
 	// cancelled.
 	KindCancel
+	// KindPassThrough is reported when the event
+	// should be passed through to other handlers.
+	KindPassThrough
 )
 
 const (
@@ -203,6 +207,7 @@ func (c *Click) Update(q input.Source) (ClickEvent, bool) {
 					Source:    e.Source,
 					Modifiers: e.Modifiers,
 					NumClicks: c.clicks,
+					Button:    e.Buttons,
 				}, true
 			} else {
 				return ClickEvent{Kind: KindCancel}, true
@@ -220,7 +225,9 @@ func (c *Click) Update(q input.Source) (ClickEvent, bool) {
 				break
 			}
 			if e.Source == pointer.Mouse && e.Buttons != pointer.ButtonPrimary {
-				break
+				// Don't consume middle-click and right-click events
+				// Let them fall through to pointer.Event handlers
+				continue
 			}
 			if !c.hovered {
 				c.pid = e.PointerID
@@ -235,7 +242,7 @@ func (c *Click) Update(q input.Source) (ClickEvent, bool) {
 				c.clicks = 1
 			}
 			c.clickedAt = e.Time
-			return ClickEvent{Kind: KindPress, Position: e.Position.Round(), Source: e.Source, Modifiers: e.Modifiers, NumClicks: c.clicks}, true
+			return ClickEvent{Kind: KindPress, Position: e.Position.Round(), Source: e.Source, Modifiers: e.Modifiers, NumClicks: c.clicks, Button: e.Buttons}, true
 		case pointer.Leave:
 			if !c.pressed {
 				c.pid = e.PointerID
@@ -469,6 +476,8 @@ func (ct ClickKind) String() string {
 		return "KindClick"
 	case KindCancel:
 		return "KindCancel"
+	case KindPassThrough:
+		return "KindPassThrough"
 	default:
 		panic("invalid ClickKind")
 	}

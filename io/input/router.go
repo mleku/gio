@@ -156,6 +156,7 @@ type stateChange struct {
 // to route events.
 type inputState struct {
 	clipboardState
+	primaryClipboardState
 	keyState
 	pointerState
 }
@@ -472,6 +473,10 @@ func (q *Router) processEvent(e event.Event, system bool) {
 	case transfer.DataEvent:
 		cstate, evts := q.cqueue.Push(state.clipboardState, e)
 		state.clipboardState = cstate
+		// Also deliver to primary clipboard receivers if any
+		pstate, pevts := q.cqueue.PushPrimary(state.primaryClipboardState, e)
+		state.primaryClipboardState = pstate
+		evts = append(evts, pevts...)
 		q.changeState(e, state, evts)
 	default:
 		panic("unknown event type")
@@ -550,6 +555,10 @@ func (q *Router) executeCommand(c Command) stateChange {
 		q.cqueue.ProcessWriteClipboard(req)
 	case clipboard.ReadCmd:
 		state.clipboardState = q.cqueue.ProcessReadClipboard(state.clipboardState, req.Tag)
+	case clipboard.WritePrimaryCmd:
+		q.cqueue.ProcessWritePrimaryClipboard(req)
+	case clipboard.ReadPrimaryCmd:
+		state.primaryClipboardState = q.cqueue.ProcessReadPrimaryClipboard(state.primaryClipboardState, req.Tag)
 	case pointer.GrabCmd:
 		state.pointerState, evts = q.pointer.queue.grab(state.pointerState, req)
 	case op.InvalidateCmd:
@@ -726,10 +735,22 @@ func (q *Router) WriteClipboard() (mime string, content []byte, ok bool) {
 	return q.cqueue.WriteClipboard()
 }
 
+// WritePrimaryClipboard returns the most recent text to be copied
+// to the primary clipboard, if any.
+func (q *Router) WritePrimaryClipboard() (text string, ok bool) {
+	return q.cqueue.WritePrimaryClipboard()
+}
+
 // ClipboardRequested reports if any new handler is waiting
 // to read the clipboard.
 func (q *Router) ClipboardRequested() bool {
 	return q.cqueue.ClipboardRequested(q.lastState().clipboardState)
+}
+
+// PrimaryClipboardRequested reports if any new handler is waiting
+// to read the primary clipboard.
+func (q *Router) PrimaryClipboardRequested() bool {
+	return q.cqueue.PrimaryClipboardRequested(q.lastState().primaryClipboardState)
 }
 
 // Cursor returns the last cursor set.

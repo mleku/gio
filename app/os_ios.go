@@ -308,6 +308,14 @@ func (w *window) WriteClipboard(mime string, s []byte) {
 	C.writeClipboard(chars, C.NSUInteger(len(u16)))
 }
 
+func (w *window) ReadPrimaryClipboard() {
+	// Primary clipboard not supported on iOS
+}
+
+func (w *window) WritePrimaryClipboard(text string) {
+	// Primary clipboard not supported on iOS
+}
+
 func (w *window) Configure([]Option) {
 	// Decorations are never disabled.
 	w.config.Decorated = true

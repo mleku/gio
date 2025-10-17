@@ -252,8 +252,16 @@ func (w *Window) updateState() {
 	if mime, txt, ok := q.WriteClipboard(); ok {
 		w.driver.WriteClipboard(mime, txt)
 	}
+	if txt, ok := q.WritePrimaryClipboard(); ok {
+		fmt.Printf("📤 APP: Writing to primary clipboard: %q\n", txt)
+		w.driver.WritePrimaryClipboard(txt)
+	}
 	if q.ClipboardRequested() {
 		w.driver.ReadClipboard()
+	}
+	if q.PrimaryClipboardRequested() {
+		fmt.Println("📥 APP: Reading from primary clipboard")
+		w.driver.ReadPrimaryClipboard()
 	}
 	oldState := w.imeState
 	newState := oldState

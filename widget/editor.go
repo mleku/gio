@@ -197,6 +197,13 @@ func (e *Editor) processEvents(gtx layout.Context) (ev EditorEvent, ok bool) {
 	defer func() {
 		afterSelStart, afterSelEnd := e.Selection()
 		if selStart != afterSelStart || selEnd != afterSelEnd {
+			// Automatically copy selected text to primary clipboard
+			if afterSelStart != afterSelEnd {
+				e.scratch = e.text.SelectedText(e.scratch)
+				if text := string(e.scratch); text != "" {
+					gtx.Execute(clipboard.WritePrimaryCmd{Text: text})
+				}
+			}
 			if ok {
 				e.pending = append(e.pending, SelectEvent{})
 			} else {
@@ -210,6 +217,30 @@ func (e *Editor) processEvents(gtx layout.Context) (ev EditorEvent, ok bool) {
 	if ok {
 		return ev, ok
 	}
+
+	// Process transfer events after pointer events (for clipboard paste)
+	for {
+		evt, ok := gtx.Source.Event(transfer.TargetFilter{Target: e, Type: "application/text"})
+		if !ok {
+			break
+		}
+		ev, ok := e.processTransferEvent(gtx, evt)
+		if ok {
+			return ev, ok
+		}
+	}
+	// Also check for text/plain events
+	for {
+		evt, ok := gtx.Source.Event(transfer.TargetFilter{Target: e, Type: "text/plain"})
+		if !ok {
+			break
+		}
+		ev, ok := e.processTransferEvent(gtx, evt)
+		if ok {
+			return ev, ok
+		}
+	}
+
 	ev, ok = e.processKey(gtx)
 	if ok {
 		return ev, ok
@@ -240,6 +271,7 @@ func (e *Editor) processPointer(gtx layout.Context) (EditorEvent, bool) {
 		scrollY.Min = -scrollOffY
 		scrollY.Max = max(0, textDims.Size.Y-(scrollOffY+visibleDims.Size.Y))
 	}
+
 	sdist := e.scroller.Update(gtx.Metric, gtx.Source, gtx.Now, axis, scrollX, scrollY)
 	var soff int
 	if e.SingleLine {
@@ -270,6 +302,21 @@ func (e *Editor) processPointer(gtx layout.Context) (EditorEvent, bool) {
 		}
 	}
 
+	// Process direct pointer events (for middle-click paste)
+	for {
+		evt, ok := gtx.Source.Event(pointer.Filter{
+			Target: e,
+			Kinds:  pointer.Press | pointer.Release | pointer.Drag | pointer.Move | pointer.Enter | pointer.Leave | pointer.Cancel,
+		})
+		if !ok {
+			break
+		}
+		ev, ok := e.processPointerEvent(gtx, evt)
+		if ok {
+			return ev, ok
+		}
+	}
+
 	if (sdist > 0 && soff >= smax) || (sdist < 0 && soff <= smin) {
 		e.scroller.Stop()
 	}
@@ -279,6 +326,11 @@ func (e *Editor) processPointer(gtx layout.Context) (EditorEvent, bool) {
 func (e *Editor) processPointerEvent(gtx layout.Context, ev event.Event) (EditorEvent, bool) {
 	switch evt := ev.(type) {
 	case gesture.ClickEvent:
+		// Only handle left-click gestures, let middle-click fall through to pointer.Event
+		if evt.Button.Contain(pointer.ButtonTertiary) {
+			// This is a middle-click gesture, handle it in pointer.Event case
+			return nil, false
+		}
 		switch {
 		case evt.Kind == gesture.KindPress && evt.Source == pointer.Mouse,
 			evt.Kind == gesture.KindClick && evt.Source != pointer.Mouse:
@@ -323,6 +375,21 @@ func (e *Editor) processPointerEvent(gtx layout.Context, ev event.Event) (Editor
 	case pointer.Event:
 		release := false
 		switch {
+		// Handle middle-click paste like p9c does
+		case evt.Kind == pointer.Press && evt.Source == pointer.Mouse && evt.Buttons.Contain(pointer.ButtonTertiary):
+			if !e.ReadOnly {
+				e.blinkStart = gtx.Now
+				e.text.MoveCoord(image.Point{
+					X: int(math.Round(float64(evt.Position.X))),
+					Y: int(math.Round(float64(evt.Position.Y))),
+				})
+				e.text.ClearSelection()
+				// Ensure editor has focus to receive transfer events
+				gtx.Execute(key.FocusCmd{Tag: e})
+				gtx.Execute(clipboard.ReadPrimaryCmd{Tag: e})
+				// Invalidate to ensure we process the transfer event in the next frame
+				gtx.Execute(op.InvalidateCmd{})
+			}
 		case evt.Kind == pointer.Release && evt.Source == pointer.Mouse:
 			release = true
 			fallthrough
@@ -338,6 +405,21 @@ func (e *Editor) processPointerEvent(gtx layout.Context, ev event.Event) (Editor
 				if release {
 					e.dragging = false
 				}
+			}
+		}
+	}
+	return nil, false
+}
+
+func (e *Editor) processTransferEvent(gtx layout.Context, ev event.Event) (EditorEvent, bool) {
+	switch ke := ev.(type) {
+	case transfer.DataEvent:
+		e.scrollCaret = true
+		e.scroller.Stop()
+		content, err := io.ReadAll(ke.Open())
+		if err == nil {
+			if e.Insert(string(content)) != 0 {
+				return ChangeEvent{}, true
 			}
 		}
 	}
@@ -365,6 +447,7 @@ func (e *Editor) processKey(gtx layout.Context) (EditorEvent, bool) {
 	filters := []event.Filter{
 		key.FocusFilter{Target: e},
 		transfer.TargetFilter{Target: e, Type: "application/text"},
+		transfer.TargetFilter{Target: e, Type: "text/plain"},
 		key.Filter{Focus: e, Name: key.NameEnter, Optional: key.ModShift},
 		key.Filter{Focus: e, Name: key.NameReturn, Optional: key.ModShift},
 

@@ -1055,6 +1055,14 @@ func (w *window) WriteClipboard(mime string, s []byte) {
 	w.disp.writeClipboard(s)
 }
 
+func (w *window) ReadPrimaryClipboard() {
+	// Primary clipboard not supported on Wayland
+}
+
+func (w *window) WritePrimaryClipboard(text string) {
+	// Primary clipboard not supported on Wayland
+}
+
 func (w *window) Configure(options []Option) {
 	_, cfg := w.getConfig()
 	prev := w.config

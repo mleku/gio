@@ -156,9 +156,48 @@ func (w *x11Window) ReadClipboard() {
 	C.XConvertSelection(w.x, w.atoms.clipboard, w.atoms.utf8string, w.atoms.clipboardContent, w.xw, C.CurrentTime)
 }
 
+func (w *x11Window) ReadPrimaryClipboard() {
+	fmt.Println("🔍 X11: Reading primary clipboard")
+	C.XDeleteProperty(w.x, w.xw, w.atoms.clipboardContent)
+	C.XConvertSelection(w.x, w.atoms.primary, w.atoms.utf8string, w.atoms.clipboardContent, w.xw, C.CurrentTime)
+}
+
 func (w *x11Window) WriteClipboard(mime string, s []byte) {
 	w.clipboard.content = s
 	C.XSetSelectionOwner(w.x, w.atoms.clipboard, w.xw, C.CurrentTime)
+	C.XSetSelectionOwner(w.x, w.atoms.primary, w.xw, C.CurrentTime)
+}
+
+func (w *x11Window) GetPrimaryClipboard() string {
+	if w.x == nil {
+		return ""
+	}
+
+	// Delete any existing property
+	C.XDeleteProperty(w.x, w.xw, w.atoms.clipboardContent)
+
+	// Request the primary selection
+	C.XConvertSelection(w.x, w.atoms.primary, w.atoms.utf8string, w.atoms.clipboardContent, w.xw, C.CurrentTime)
+
+	// Wait for the selection notify event
+	// This is a simplified synchronous approach - in a real implementation
+	// you'd want to handle this more carefully with timeouts
+	var text C.XTextProperty
+	if st := C.XGetTextProperty(w.x, w.xw, &text, w.atoms.clipboardContent); st == 0 {
+		return ""
+	}
+
+	if text.format != 8 || text.encoding != w.atoms.utf8string {
+		return ""
+	}
+
+	str := C.GoStringN((*C.char)(unsafe.Pointer(text.value)), C.int(text.nitems))
+	return str
+}
+
+func (w *x11Window) WritePrimaryClipboard(text string) {
+	fmt.Printf("💾 X11: Writing to primary clipboard: %q\n", text)
+	w.clipboard.content = []byte(text)
 	C.XSetSelectionOwner(w.x, w.atoms.primary, w.xw, C.CurrentTime)
 }
 
@@ -672,8 +711,15 @@ func (h *x11EventHandler) handleEvents() bool {
 			if cevt.property != prop {
 				break
 			}
-			if cevt.selection != w.atoms.clipboard {
+			if cevt.selection != w.atoms.clipboard && cevt.selection != w.atoms.primary {
 				break
+			}
+
+			// Debug which clipboard we're receiving data from
+			if cevt.selection == w.atoms.primary {
+				fmt.Println("📥 X11: Received primary clipboard data")
+			} else {
+				fmt.Println("📥 X11: Received regular clipboard data")
 			}
 			var text C.XTextProperty
 			if st := C.XGetTextProperty(w.x, w.xw, &text, prop); st == 0 {
@@ -685,6 +731,7 @@ func (h *x11EventHandler) handleEvents() bool {
 				break
 			}
 			str := C.GoStringN((*C.char)(unsafe.Pointer(text.value)), C.int(text.nitems))
+			fmt.Printf("📄 X11: Clipboard content: %q (length: %d)\n", str, len(str))
 			w.ProcessEvent(transfer.DataEvent{
 				Type: "application/text",
 				Open: func() io.ReadCloser {

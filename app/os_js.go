@@ -551,6 +551,14 @@ func (w *window) WriteClipboard(mime string, s []byte) {
 	w.clipboard.Call("writeText", string(s))
 }
 
+func (w *window) ReadPrimaryClipboard() {
+	// Primary clipboard not supported on Web
+}
+
+func (w *window) WritePrimaryClipboard(text string) {
+	// Primary clipboard not supported on Web
+}
+
 func (w *window) Configure(options []Option) {
 	prev := w.config
 	cnf := w.config

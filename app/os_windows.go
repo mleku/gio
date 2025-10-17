@@ -776,6 +776,14 @@ func (w *window) WriteClipboard(mime string, s []byte) {
 	w.writeClipboard(string(s))
 }
 
+func (w *window) ReadPrimaryClipboard() {
+	// Primary clipboard not supported on Windows
+}
+
+func (w *window) WritePrimaryClipboard(text string) {
+	// Primary clipboard not supported on Windows
+}
+
 func (w *window) writeClipboard(s string) error {
 	if err := windows.OpenClipboard(w.hwnd); err != nil {
 		return err

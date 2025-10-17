@@ -410,6 +410,14 @@ func (w *window) WriteClipboard(mime string, s []byte) {
 	C.writeClipboard(cstr)
 }
 
+func (w *window) ReadPrimaryClipboard() {
+	// Primary clipboard not supported on macOS
+}
+
+func (w *window) WritePrimaryClipboard(text string) {
+	// Primary clipboard not supported on macOS
+}
+
 func (w *window) updateWindowMode() {
 	w.scale = float32(C.getViewBackingScale(w.view))
 	wf, hf := float32(C.viewWidth(w.view)), float32(C.viewHeight(w.view))
