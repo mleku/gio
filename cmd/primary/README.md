@@ -2,7 +2,7 @@
 
 This demo showcases the primary clipboard functionality implemented in gio, which provides:
 
-- **Automatic selection copy**: When you select text in the editor, it's automatically copied to the primary clipboard (X11 PRIMARY selection)
+- **Automatic selection copy**: When you select text in the editor or selectable widget, it's automatically copied to the primary clipboard (X11 PRIMARY selection)
 - **Middle-click paste**: Middle mouse button click pastes content from the primary clipboard
 - **Regular clipboard support**: Ctrl+C/V still work for regular clipboard operations
 
@@ -11,16 +11,21 @@ This demo showcases the primary clipboard functionality implemented in gio, whic
 1. **Text Selection**: Select text with your mouse and it will automatically be copied to the primary clipboard
 2. **Middle-Click Paste**: Click the middle mouse button to paste from the primary clipboard
 3. **Multi-line Editor**: The demo includes a multi-line text editor for testing
-4. **Cross-platform**: Works on X11 systems, gracefully handles other platforms
+4. **Selectable Widget**: Also includes a read-only selectable widget demo
+5. **Cross-platform**: Works on X11 systems, gracefully handles other platforms
 
 ## How to Run
 
 1. Navigate to the gio root directory
-2. Run the demo:
+2. Run the editor demo:
    ```bash
    cd cmd/primary
    go mod tidy
-   go run .
+   go run main.go
+   ```
+3. Run the selectable widget demo:
+   ```bash
+   go run selectable_demo.go
    ```
 
 ## Platform Support
@@ -31,10 +36,17 @@ This demo showcases the primary clipboard functionality implemented in gio, whic
 
 ## Usage Instructions
 
+### Editor Demo (main.go)
 1. Type some text in the editor
 2. Select text with your mouse - it will automatically copy to primary clipboard
 3. Click middle mouse button to paste from primary clipboard
 4. Use Ctrl+C/V for regular clipboard operations
+
+### Selectable Demo (selectable_demo.go)
+1. Select text in the selectable widget - it will automatically copy to primary clipboard
+2. Click middle mouse button to demonstrate primary clipboard functionality
+3. Note: This is a read-only widget, so middle-click won't insert text, but shows the clipboard working
+4. Use Ctrl+C for regular clipboard operations
 
 ## Technical Details
 
@@ -44,6 +56,7 @@ The implementation includes:
 - Updated input router to handle primary clipboard operations
 - Platform-specific implementations for all supported operating systems
 - Enhanced editor widget with automatic selection copying and middle-click paste
+- Enhanced selectable widget with automatic selection copying and middle-click detection
 - X11 integration using X11 PRIMARY selection mechanism
 - **Fixed X11 SelectionNotify handler** to properly handle both regular and primary clipboard events
 - **Improved middle-click handling** based on p9c implementation:

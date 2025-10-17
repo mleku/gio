@@ -13,6 +13,7 @@ import (
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
 	"gioui.org/io/system"
+	"gioui.org/io/transfer"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -208,9 +209,17 @@ func (l *Selectable) handleEvents(gtx layout.Context) (selectionChanged bool) {
 	defer func() {
 		if newStart, newLen := min(l.text.Selection()), l.text.SelectionLen(); oldStart != newStart || oldLen != newLen {
 			selectionChanged = true
+			// Automatically copy selected text to primary clipboard
+			if newLen > 0 {
+				l.scratch = l.text.SelectedText(l.scratch)
+				if text := string(l.scratch); text != "" {
+					gtx.Execute(clipboard.WritePrimaryCmd{Text: text})
+				}
+			}
 		}
 	}()
 	l.processPointer(gtx)
+	l.processTransferEvents(gtx)
 	l.processKey(gtx)
 	return selectionChanged
 }
@@ -219,6 +228,11 @@ func (e *Selectable) processPointer(gtx layout.Context) {
 	for _, evt := range e.clickDragEvents(gtx) {
 		switch evt := evt.(type) {
 		case gesture.ClickEvent:
+			// Only handle left-click gestures, let middle-click fall through to pointer.Event
+			if evt.Button.Contain(pointer.ButtonTertiary) {
+				// This is a middle-click gesture, handle it in pointer.Event case
+				continue
+			}
 			switch {
 			case evt.Kind == gesture.KindPress && evt.Source == pointer.Mouse,
 				evt.Kind == gesture.KindClick && evt.Source != pointer.Mouse:
@@ -255,6 +269,18 @@ func (e *Selectable) processPointer(gtx layout.Context) {
 		case pointer.Event:
 			release := false
 			switch {
+			// Handle middle-click paste
+			case evt.Kind == pointer.Press && evt.Source == pointer.Mouse && evt.Buttons.Contain(pointer.ButtonTertiary):
+				e.text.MoveCoord(image.Point{
+					X: int(math.Round(float64(evt.Position.X))),
+					Y: int(math.Round(float64(evt.Position.Y))),
+				})
+				e.text.ClearSelection()
+				// Ensure selectable has focus to receive transfer events
+				gtx.Execute(key.FocusCmd{Tag: e})
+				gtx.Execute(clipboard.ReadPrimaryCmd{Tag: e})
+				// Invalidate to ensure we process the transfer event in the next frame
+				gtx.Execute(op.InvalidateCmd{})
 			case evt.Kind == pointer.Release && evt.Source == pointer.Mouse:
 				release = true
 				fallthrough
@@ -291,6 +317,44 @@ func (e *Selectable) clickDragEvents(gtx layout.Context) []event.Event {
 		combinedEvents = append(combinedEvents, evt)
 	}
 	return combinedEvents
+}
+
+func (l *Selectable) processTransferEvents(gtx layout.Context) bool {
+	// Process transfer events for clipboard paste
+	for {
+		evt, ok := gtx.Source.Event(transfer.TargetFilter{Target: l, Type: "application/text"})
+		if !ok {
+			break
+		}
+		if l.processTransferEvent(gtx, evt) {
+			return true
+		}
+	}
+	// Also check for text/plain events
+	for {
+		evt, ok := gtx.Source.Event(transfer.TargetFilter{Target: l, Type: "text/plain"})
+		if !ok {
+			break
+		}
+		if l.processTransferEvent(gtx, evt) {
+			return true
+		}
+	}
+	return false
+}
+
+func (l *Selectable) processTransferEvent(gtx layout.Context, ev event.Event) bool {
+	switch ke := ev.(type) {
+	case transfer.DataEvent:
+		_, err := io.ReadAll(ke.Open())
+		if err == nil {
+			// For Selectable, we can't insert text, but we can select it
+			// This is a read-only widget, so we'll just focus and show the content
+			// In practice, this might not be very useful for Selectable
+			return true
+		}
+	}
+	return false
 }
 
 func (e *Selectable) processKey(gtx layout.Context) {
