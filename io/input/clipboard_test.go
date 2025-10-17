@@ -89,7 +89,7 @@ func TestQueueProcessWriteClipboard(t *testing.T) {
 
 func assertClipboardReadCmd(t *testing.T, router *Router, expected int) {
 	t.Helper()
-	if got := len(router.state().receivers); got != expected {
+	if got := len(router.state().clipboardState.receivers); got != expected {
 		t.Errorf("unexpected %d receivers, got %d", expected, got)
 	}
 	if router.ClipboardRequested() != (expected > 0) {
@@ -99,7 +99,7 @@ func assertClipboardReadCmd(t *testing.T, router *Router, expected int) {
 
 func assertClipboardReadDuplicated(t *testing.T, router *Router, expected int) {
 	t.Helper()
-	if len(router.state().receivers) != expected {
+	if len(router.state().clipboardState.receivers) != expected {
 		t.Error("receivers removed")
 	}
 	if router.ClipboardRequested() != false {
