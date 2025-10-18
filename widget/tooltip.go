@@ -216,19 +216,78 @@ func (tm *TooltipManager) Layout(gtx layout.Context, shaper *text.Shaper) layout
 	return layout.Dimensions{Size: tm.viewportSize}
 }
 
+// measureTooltipText measures the text without rendering it
+func (tm *TooltipManager) measureTooltipText(gtx layout.Context, tooltipText string) layout.Dimensions {
+	if tooltipText == "" {
+		return layout.Dimensions{}
+	}
+
+	textSize := unit.Sp(14) // Small text size for tooltips
+	font := font.Font{}     // Use default font
+
+	// Create label widget for text measurement
+	label := Label{
+		Alignment: text.Start,
+		MaxLines:  1,
+	}
+
+	// Measure text with unconstrained width to get natural size
+	measureGtx := gtx
+	measureGtx.Constraints = layout.Constraints{
+		Min: image.Point{},
+		Max: image.Point{X: 1000, Y: 1000}, // Large enough to not constrain
+	}
+
+	// Record operations but don't execute them (measurement-only rendering)
+	child := op.Record(measureGtx.Ops)
+	textColorMacro := op.Record(measureGtx.Ops)
+	paint.ColorOp{Color: color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xFF}}.Add(measureGtx.Ops) // Black text
+	textColor := textColorMacro.Stop()
+
+	dims := label.Layout(measureGtx, tm.activeTooltip.theme, font, textSize, tooltipText, textColor)
+
+	// Discard the recorded operations to prevent rendering
+	_ = child.Stop()
+
+	return dims
+}
+
 // createTooltipWidget creates a tooltip widget with the given text.
 func (tm *TooltipManager) createTooltipWidget(tooltipText string) layout.Widget {
 	return func(gtx layout.Context) layout.Dimensions {
-		// Create tooltip with 0.5 text height inset around it
-		inset := unit.Dp(8) // 0.5 text height (assuming 16dp text height)
+		if tooltipText == "" {
+			return layout.Dimensions{}
+		}
+
+		textSize := unit.Sp(14) // Small text size for tooltips
+		font := font.Font{}     // Use default font
+
+		// Measure the text to get its actual dimensions
+		textDims := tm.measureTooltipText(gtx, tooltipText)
+
+		// Calculate half text height for margins
+		halfTextHeight := textDims.Size.Y / 2
+
+		// Calculate total tooltip size including margins
+		totalWidth := textDims.Size.X + halfTextHeight*2
+		totalHeight := textDims.Size.Y + halfTextHeight*2
+
+		// Create constraints for the tooltip content
+		tooltipConstraints := layout.Constraints{
+			Min: image.Point{X: totalWidth, Y: totalHeight},
+			Max: image.Point{X: totalWidth, Y: totalHeight},
+		}
 
 		return layout.Inset{
-			Top:    inset,
-			Bottom: inset,
-			Left:   inset,
-			Right:  inset,
+			Top:    unit.Dp(float32(halfTextHeight)),
+			Bottom: unit.Dp(float32(halfTextHeight)),
+			Left:   unit.Dp(float32(halfTextHeight)),
+			Right:  unit.Dp(float32(halfTextHeight)),
 		}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-			// Draw tooltip background - yellow
+			// Set constraints to match the text size
+			gtx.Constraints = tooltipConstraints
+
+			// Draw tooltip background - yellow, sized to content
 			clipStack := clip.Rect(image.Rectangle{Max: gtx.Constraints.Max}).Push(gtx.Ops)
 			paint.Fill(gtx.Ops, color.NRGBA{R: 0xFF, G: 0xFF, B: 0x00, A: 0xFF}) // Yellow background
 			clipStack.Pop()
@@ -246,11 +305,10 @@ func (tm *TooltipManager) createTooltipWidget(tooltipText string) layout.Widget 
 					MaxLines:  1,
 				}
 
-				// Layout the text
-				textSize := unit.Sp(14) // Small text size for tooltips
-				font := font.Font{}     // Use default font
-
-				label.Layout(gtx, tm.activeTooltip.theme, font, textSize, tooltipText, textColor)
+				// Center the text both horizontally and vertically
+				layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					return label.Layout(gtx, tm.activeTooltip.theme, font, textSize, tooltipText, textColor)
+				})
 
 				return layout.Dimensions{Size: gtx.Constraints.Max}
 			}
