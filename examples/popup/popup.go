@@ -168,6 +168,9 @@ type ExampleButton struct {
 	widget.Clickable
 	Label string
 	Color color.NRGBA
+	// Persistent clickables for context menu items
+	menuItemClickables []*widget.Clickable
+	closeButton        *widget.Clickable
 }
 
 // ContextMenu implements the ContextWidget interface
@@ -176,13 +179,18 @@ func (b *ExampleButton) ContextMenu(gtx layout.Context, clickPos image.Point) la
 	return func(gtx layout.Context) layout.Dimensions {
 		// Create context menu items - button label and close button
 		menuItems := []string{b.Label, "Close"}
-		clickables := make([]*widget.Clickable, len(menuItems))
-		for i := range clickables {
-			clickables[i] = &widget.Clickable{}
+
+		// Initialize persistent clickables if not already done
+		if b.menuItemClickables == nil {
+			b.menuItemClickables = make([]*widget.Clickable, len(menuItems))
+			for i := range b.menuItemClickables {
+				b.menuItemClickables[i] = &widget.Clickable{}
+			}
 		}
 
-		// Create close button
-		closeButton := &widget.Clickable{}
+		if b.closeButton == nil {
+			b.closeButton = &widget.Clickable{}
+		}
 
 		// Calculate menu size based on items
 		itemHeight := 25
@@ -195,14 +203,15 @@ func (b *ExampleButton) ContextMenu(gtx layout.Context, clickPos image.Point) la
 		closeButtonOffset := op.Offset(image.Point{X: menuWidth - closeButtonSize - 2, Y: 2}).Push(gtx.Ops)
 
 		// Add clickable area for close button first
-		closeButton.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		b.closeButton.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 			return layout.Dimensions{Size: image.Point{X: closeButtonSize, Y: closeButtonSize}}
 		})
 
 		// Check for close button click
-		if closeButton.Clicked(gtx) {
+		if b.closeButton.Clicked(gtx) {
 			log.Printf("Close button clicked for Button %s", b.Label)
-			// Note: In a real implementation, you'd dismiss the context menu here
+			// Dismiss the context menu by returning nil
+			return layout.Dimensions{Size: image.Point{X: 0, Y: 0}}
 		}
 
 		closeButtonOffset.Pop()
@@ -223,23 +232,25 @@ func (b *ExampleButton) ContextMenu(gtx layout.Context, clickPos image.Point) la
 		// Draw close button visuals AFTER clipping
 		closeButtonOffset2 := op.Offset(image.Point{X: menuWidth - closeButtonSize - 2, Y: 2}).Push(gtx.Ops)
 
-		// Draw close button background
-		if closeButton.Hovered() {
-			paint.Fill(gtx.Ops, color.NRGBA{R: 0xE0, G: 0xE0, B: 0xE0, A: 0xFF})
+		// Draw close button background - RED square with clipping
+		closeButtonClip := clip.Rect(image.Rectangle{Max: image.Point{X: closeButtonSize, Y: closeButtonSize}}).Push(gtx.Ops)
+		if b.closeButton.Hovered() {
+			paint.Fill(gtx.Ops, color.NRGBA{R: 0xCC, G: 0x00, B: 0x00, A: 0xFF}) // Darker red on hover
 		} else {
-			paint.Fill(gtx.Ops, color.NRGBA{R: 0xF8, G: 0xF8, B: 0xF8, A: 0xFF})
+			paint.Fill(gtx.Ops, color.NRGBA{R: 0xFF, G: 0x00, B: 0x00, A: 0xFF}) // Bright red
 		}
+		closeButtonClip.Pop()
 
 		// Draw close button border
-		paint.FillShape(gtx.Ops, color.NRGBA{R: 0xC0, G: 0xC0, B: 0xC0, A: 0xFF},
+		paint.FillShape(gtx.Ops, color.NRGBA{R: 0x80, G: 0x00, B: 0x00, A: 0xFF},
 			clip.Stroke{
 				Path:  clip.Rect(image.Rectangle{Max: image.Point{X: closeButtonSize, Y: closeButtonSize}}).Path(),
 				Width: 1,
 			}.Op())
 
-		// Draw close button "X"
+		// Draw close button "X" - white text on red background
 		closeLabel := material.Body2(th, "×")
-		closeLabel.Color = color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF}
+		closeLabel.Color = color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF} // White text
 		layout.Center.Layout(gtx, closeLabel.Layout)
 
 		closeButtonOffset2.Pop()
@@ -247,7 +258,7 @@ func (b *ExampleButton) ContextMenu(gtx layout.Context, clickPos image.Point) la
 		// Draw menu items
 		itemOffset := op.Offset(image.Point{X: padding, Y: padding}).Push(gtx.Ops)
 		for i, item := range menuItems {
-			itemClickable := clickables[i]
+			itemClickable := b.menuItemClickables[i]
 
 			// Add clickable area first - this enables hover detection
 			itemClickable.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
@@ -257,6 +268,10 @@ func (b *ExampleButton) ContextMenu(gtx layout.Context, clickPos image.Point) la
 			// Check for clicks on this item
 			if itemClickable.Clicked(gtx) {
 				log.Printf("Button %s clicked: %s", b.Label, item)
+				// Dismiss the context menu by returning nil
+				itemOffset.Pop()
+				clipStack.Pop()
+				return layout.Dimensions{Size: image.Point{X: 0, Y: 0}}
 			}
 
 			// Draw item text first
@@ -266,9 +281,11 @@ func (b *ExampleButton) ContextMenu(gtx layout.Context, clickPos image.Point) la
 				return layout.Inset{Top: unit.Dp(5), Bottom: unit.Dp(5), Left: unit.Dp(10), Right: unit.Dp(10)}.Layout(gtx, label.Layout)
 			})
 
-			// Draw hover effect overlay after text (10% opacity dark overlay)
+			// Draw hover effect overlay after text (20% opacity black overlay) with clipping
 			if itemClickable.Hovered() {
-				paint.Fill(gtx.Ops, color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0x1A}) // 10% opacity black
+				hoverClip := clip.Rect(image.Rectangle{Max: image.Point{X: menuWidth - padding*2, Y: itemHeight}}).Push(gtx.Ops)
+				paint.Fill(gtx.Ops, color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0x33}) // 20% opacity black
+				hoverClip.Pop()
 			}
 
 			// Move to next item
@@ -340,6 +357,9 @@ type ExampleContainer struct {
 	Color     color.NRGBA
 	Buttons   []*ExampleButton
 	Clickable widget.Clickable
+	// Persistent clickables for context menu items
+	menuItemClickables []*widget.Clickable
+	closeButton        *widget.Clickable
 }
 
 // ContextMenu implements the ContextWidget interface
@@ -348,13 +368,18 @@ func (c *ExampleContainer) ContextMenu(gtx layout.Context, clickPos image.Point)
 	return func(gtx layout.Context) layout.Dimensions {
 		// Container context menu - just one close button
 		menuItems := []string{"Close"}
-		clickables := make([]*widget.Clickable, len(menuItems))
-		for i := range clickables {
-			clickables[i] = &widget.Clickable{}
+
+		// Initialize persistent clickables if not already done
+		if c.menuItemClickables == nil {
+			c.menuItemClickables = make([]*widget.Clickable, len(menuItems))
+			for i := range c.menuItemClickables {
+				c.menuItemClickables[i] = &widget.Clickable{}
+			}
 		}
 
-		// Create close button
-		closeButton := &widget.Clickable{}
+		if c.closeButton == nil {
+			c.closeButton = &widget.Clickable{}
+		}
 
 		// Calculate menu size based on items
 		itemHeight := 25
@@ -367,14 +392,15 @@ func (c *ExampleContainer) ContextMenu(gtx layout.Context, clickPos image.Point)
 		closeButtonOffset := op.Offset(image.Point{X: menuWidth - closeButtonSize - 2, Y: 2}).Push(gtx.Ops)
 
 		// Add clickable area for close button first
-		closeButton.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		c.closeButton.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 			return layout.Dimensions{Size: image.Point{X: closeButtonSize, Y: closeButtonSize}}
 		})
 
 		// Check for close button click
-		if closeButton.Clicked(gtx) {
+		if c.closeButton.Clicked(gtx) {
 			log.Printf("Close button clicked for Container")
-			// Note: In a real implementation, you'd dismiss the context menu here
+			// Dismiss the context menu by returning nil
+			return layout.Dimensions{Size: image.Point{X: 0, Y: 0}}
 		}
 
 		closeButtonOffset.Pop()
@@ -396,7 +422,7 @@ func (c *ExampleContainer) ContextMenu(gtx layout.Context, clickPos image.Point)
 		closeButtonOffset2 := op.Offset(image.Point{X: menuWidth - closeButtonSize - 2, Y: 2}).Push(gtx.Ops)
 
 		// Draw close button background
-		if closeButton.Hovered() {
+		if c.closeButton.Hovered() {
 			paint.Fill(gtx.Ops, color.NRGBA{R: 0xE0, G: 0xE0, B: 0xE0, A: 0xFF})
 		} else {
 			paint.Fill(gtx.Ops, color.NRGBA{R: 0xF8, G: 0xF8, B: 0xF8, A: 0xFF})
@@ -419,7 +445,7 @@ func (c *ExampleContainer) ContextMenu(gtx layout.Context, clickPos image.Point)
 		// Draw menu items
 		itemOffset := op.Offset(image.Point{X: padding, Y: padding}).Push(gtx.Ops)
 		for i, item := range menuItems {
-			itemClickable := clickables[i]
+			itemClickable := c.menuItemClickables[i]
 
 			// Add clickable area first - this enables hover detection
 			itemClickable.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
@@ -429,6 +455,10 @@ func (c *ExampleContainer) ContextMenu(gtx layout.Context, clickPos image.Point)
 			// Check for clicks on this item
 			if itemClickable.Clicked(gtx) {
 				log.Printf("Container clicked: %s", item)
+				// Dismiss the context menu by returning nil
+				itemOffset.Pop()
+				clipStack.Pop()
+				return layout.Dimensions{Size: image.Point{X: 0, Y: 0}}
 			}
 
 			// Draw item text first
@@ -438,9 +468,11 @@ func (c *ExampleContainer) ContextMenu(gtx layout.Context, clickPos image.Point)
 				return layout.Inset{Top: unit.Dp(5), Bottom: unit.Dp(5), Left: unit.Dp(10), Right: unit.Dp(10)}.Layout(gtx, label.Layout)
 			})
 
-			// Draw hover effect overlay after text (10% opacity dark overlay)
+			// Draw hover effect overlay after text (20% opacity black overlay) with clipping
 			if itemClickable.Hovered() {
-				paint.Fill(gtx.Ops, color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0x1A}) // 10% opacity black
+				hoverClip := clip.Rect(image.Rectangle{Max: image.Point{X: menuWidth - padding*2, Y: itemHeight}}).Push(gtx.Ops)
+				paint.Fill(gtx.Ops, color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0x33}) // 20% opacity black
+				hoverClip.Pop()
 			}
 
 			// Move to next item
@@ -480,6 +512,9 @@ func (c *ExampleContainer) Layout(gtx layout.Context, th *material.Theme) layout
 // MainBackgroundWidget is a widget that provides context menu for the main background
 type MainBackgroundWidget struct {
 	widget.Clickable
+	// Persistent clickables for context menu items
+	menuItemClickables []*widget.Clickable
+	closeButton        *widget.Clickable
 }
 
 // ContextMenu implements the ContextWidget interface
@@ -488,13 +523,18 @@ func (m *MainBackgroundWidget) ContextMenu(gtx layout.Context, clickPos image.Po
 	return func(gtx layout.Context) layout.Dimensions {
 		// Create context menu items - main label and close button
 		menuItems := []string{"main", "Close"}
-		clickables := make([]*widget.Clickable, len(menuItems))
-		for i := range clickables {
-			clickables[i] = &widget.Clickable{}
+
+		// Initialize persistent clickables if not already done
+		if m.menuItemClickables == nil {
+			m.menuItemClickables = make([]*widget.Clickable, len(menuItems))
+			for i := range m.menuItemClickables {
+				m.menuItemClickables[i] = &widget.Clickable{}
+			}
 		}
 
-		// Create close button
-		closeButton := &widget.Clickable{}
+		if m.closeButton == nil {
+			m.closeButton = &widget.Clickable{}
+		}
 
 		// Calculate menu size based on items
 		itemHeight := 25
@@ -507,14 +547,15 @@ func (m *MainBackgroundWidget) ContextMenu(gtx layout.Context, clickPos image.Po
 		closeButtonOffset := op.Offset(image.Point{X: menuWidth - closeButtonSize - 2, Y: 2}).Push(gtx.Ops)
 
 		// Add clickable area for close button first
-		closeButton.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		m.closeButton.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 			return layout.Dimensions{Size: image.Point{X: closeButtonSize, Y: closeButtonSize}}
 		})
 
 		// Check for close button click
-		if closeButton.Clicked(gtx) {
+		if m.closeButton.Clicked(gtx) {
 			log.Printf("Close button clicked for main background")
-			// Note: In a real implementation, you'd dismiss the context menu here
+			// Dismiss the context menu by returning nil
+			return layout.Dimensions{Size: image.Point{X: 0, Y: 0}}
 		}
 
 		closeButtonOffset.Pop()
@@ -535,23 +576,25 @@ func (m *MainBackgroundWidget) ContextMenu(gtx layout.Context, clickPos image.Po
 		// Draw close button visuals AFTER clipping
 		closeButtonOffset2 := op.Offset(image.Point{X: menuWidth - closeButtonSize - 2, Y: 2}).Push(gtx.Ops)
 
-		// Draw close button background
-		if closeButton.Hovered() {
-			paint.Fill(gtx.Ops, color.NRGBA{R: 0xE0, G: 0xE0, B: 0xE0, A: 0xFF})
+		// Draw close button background - RED square with clipping
+		closeButtonClip := clip.Rect(image.Rectangle{Max: image.Point{X: closeButtonSize, Y: closeButtonSize}}).Push(gtx.Ops)
+		if m.closeButton.Hovered() {
+			paint.Fill(gtx.Ops, color.NRGBA{R: 0xCC, G: 0x00, B: 0x00, A: 0xFF}) // Darker red on hover
 		} else {
-			paint.Fill(gtx.Ops, color.NRGBA{R: 0xF8, G: 0xF8, B: 0xF8, A: 0xFF})
+			paint.Fill(gtx.Ops, color.NRGBA{R: 0xFF, G: 0x00, B: 0x00, A: 0xFF}) // Bright red
 		}
+		closeButtonClip.Pop()
 
 		// Draw close button border
-		paint.FillShape(gtx.Ops, color.NRGBA{R: 0xC0, G: 0xC0, B: 0xC0, A: 0xFF},
+		paint.FillShape(gtx.Ops, color.NRGBA{R: 0x80, G: 0x00, B: 0x00, A: 0xFF},
 			clip.Stroke{
 				Path:  clip.Rect(image.Rectangle{Max: image.Point{X: closeButtonSize, Y: closeButtonSize}}).Path(),
 				Width: 1,
 			}.Op())
 
-		// Draw close button "X"
+		// Draw close button "X" - white text on red background
 		closeLabel := material.Body2(th, "×")
-		closeLabel.Color = color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF}
+		closeLabel.Color = color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF} // White text
 		layout.Center.Layout(gtx, closeLabel.Layout)
 
 		closeButtonOffset2.Pop()
@@ -559,7 +602,7 @@ func (m *MainBackgroundWidget) ContextMenu(gtx layout.Context, clickPos image.Po
 		// Draw menu items
 		itemOffset := op.Offset(image.Point{X: padding, Y: padding}).Push(gtx.Ops)
 		for i, item := range menuItems {
-			itemClickable := clickables[i]
+			itemClickable := m.menuItemClickables[i]
 
 			// Add clickable area first - this enables hover detection
 			itemClickable.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
@@ -569,6 +612,10 @@ func (m *MainBackgroundWidget) ContextMenu(gtx layout.Context, clickPos image.Po
 			// Check for clicks on this item
 			if itemClickable.Clicked(gtx) {
 				log.Printf("Main background clicked: %s", item)
+				// Dismiss the context menu by returning nil
+				itemOffset.Pop()
+				clipStack.Pop()
+				return layout.Dimensions{Size: image.Point{X: 0, Y: 0}}
 			}
 
 			// Draw item text first
@@ -578,9 +625,11 @@ func (m *MainBackgroundWidget) ContextMenu(gtx layout.Context, clickPos image.Po
 				return layout.Inset{Top: unit.Dp(5), Bottom: unit.Dp(5), Left: unit.Dp(10), Right: unit.Dp(10)}.Layout(gtx, label.Layout)
 			})
 
-			// Draw hover effect overlay after text (10% opacity dark overlay)
+			// Draw hover effect overlay after text (20% opacity black overlay) with clipping
 			if itemClickable.Hovered() {
-				paint.Fill(gtx.Ops, color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0x1A}) // 10% opacity black
+				hoverClip := clip.Rect(image.Rectangle{Max: image.Point{X: menuWidth - padding*2, Y: itemHeight}}).Push(gtx.Ops)
+				paint.Fill(gtx.Ops, color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0x33}) // 20% opacity black
+				hoverClip.Pop()
 			}
 
 			// Move to next item

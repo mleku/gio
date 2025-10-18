@@ -31,6 +31,8 @@ type ContextManager struct {
 	viewportSize image.Point
 	// registeredWidgets stores widgets that can provide context menus
 	registeredWidgets []registeredWidget
+	// scrim clickable for dismissing context widgets
+	scrimClickable *Clickable
 }
 
 type activeContext struct {
@@ -49,7 +51,9 @@ type registeredWidget struct {
 
 // NewContextManager creates a new context manager.
 func NewContextManager() *ContextManager {
-	return &ContextManager{}
+	return &ContextManager{
+		scrimClickable: &Clickable{},
+	}
 }
 
 // RegisterWidget registers a widget that can provide context menus.
@@ -73,29 +77,39 @@ func (cm *ContextManager) UpdateWidgetBounds(widget ContextWidget, bounds image.
 
 // Update processes right-click events and manages context widget display.
 func (cm *ContextManager) Update(gtx layout.Context) {
-	// Handle scrim clicks first if context menu is active
+	// If context menu is active, check for scrim clicks to dismiss it
 	if cm.activeContext != nil {
-		// Handle scrim clicks (any click on the scrim areas)
+		// Register scrim clickable for pointer events
+		event.Op(gtx.Ops, cm.scrimClickable)
+
+		// Check for clicks on scrim area
 		for {
 			ev, ok := gtx.Event(pointer.Filter{
-				Target: cm, // Use the context manager itself as target
+				Target: cm.scrimClickable,
 				Kinds:  pointer.Press,
 			})
 			if !ok {
 				break
 			}
-
 			e, ok := ev.(pointer.Event)
 			if !ok {
 				continue
 			}
 
-			// Check if click is on the scrim (outside the context widget)
-			if !cm.isPointInContextWidget(e.Position.Round()) {
+			clickPos := e.Position.Round()
+
+			// Check if click is outside the context menu area
+			contextMenuBounds := image.Rectangle{
+				Min: cm.activeContext.position,
+				Max: cm.activeContext.position.Add(cm.activeContext.dimensions.Size),
+			}
+
+			if !clickPos.In(contextMenuBounds) && e.Buttons == pointer.ButtonPrimary {
 				cm.dismissContextWidget()
+				return
 			}
 		}
-		return // Don't process right-clicks if context menu is active
+		return
 	}
 
 	// Process right-click events only when no context menu is active
@@ -163,11 +177,40 @@ func (cm *ContextManager) Layout(gtx layout.Context) layout.Dimensions {
 		return layout.Dimensions{}
 	}
 
+	// Calculate dimensions on first layout call if not already calculated
+	if cm.activeContext.dimensions.Size.X == 0 && cm.activeContext.dimensions.Size.Y == 0 {
+		macro := op.Record(gtx.Ops)
+		tempGtx := gtx
+		tempGtx.Constraints = layout.Constraints{
+			Min: image.Point{},
+			Max: image.Point{X: 300, Y: 200}, // Reasonable max size for context menus
+		}
+		dims := cm.activeContext.widget(tempGtx)
+		macro.Stop()
+
+		// If dimensions are zero, dismiss the context menu
+		if dims.Size.X == 0 && dims.Size.Y == 0 {
+			cm.dismissContextWidget()
+			return layout.Dimensions{Size: cm.viewportSize}
+		}
+
+		cm.activeContext.dimensions = dims
+	}
+
 	// Calculate the optimal position for the context widget first
 	pos := cm.calculateOptimalPosition(gtx, cm.activeContext.clickPos, cm.activeContext.dimensions)
 	widgetSize := cm.activeContext.dimensions.Size
 
-	// Draw 4 scrim sections around the popup widget
+	// Handle scrim - clickable area covering viewport but excluding context menu
+	// Layout the scrim clickable to cover the entire viewport
+	cm.scrimClickable.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Dimensions{Size: cm.viewportSize}
+	})
+
+	// Check if click is outside the context menu area
+	// This will be handled in the Update method by checking click position
+
+	// Draw scrim areas (semi-transparent overlay)
 	// Top scrim
 	topScrim := image.Rectangle{
 		Min: image.Point{},
@@ -216,8 +259,14 @@ func (cm *ContextManager) Layout(gtx layout.Context) layout.Dimensions {
 	macro := op.Record(gtx.Ops)
 	contextGtx := gtx
 	contextGtx.Constraints = layout.Exact(cm.activeContext.dimensions.Size)
-	cm.activeContext.widget(contextGtx)
+	dims := cm.activeContext.widget(contextGtx)
 	call := macro.Stop()
+
+	// If the widget returns zero dimensions, dismiss it
+	if dims.Size.X == 0 && dims.Size.Y == 0 {
+		cm.dismissContextWidget()
+		return layout.Dimensions{Size: cm.viewportSize}
+	}
 
 	// Position and render the context widget
 	trans := op.Offset(pos).Push(gtx.Ops)
@@ -237,20 +286,12 @@ func (cm *ContextManager) Layout(gtx layout.Context) layout.Dimensions {
 
 // ShowContextWidget displays a context widget at the specified position.
 func (cm *ContextManager) ShowContextWidget(gtx layout.Context, widget layout.Widget, clickPos image.Point) {
-	// Calculate dimensions first
-	macro := op.Record(gtx.Ops)
-	tempGtx := gtx
-	tempGtx.Constraints = layout.Constraints{
-		Min: image.Point{},
-		Max: image.Point{X: 300, Y: 200}, // Reasonable max size for context menus
-	}
-	dims := widget(tempGtx)
-	macro.Stop()
-
+	// Don't calculate dimensions immediately - defer until layout phase
+	// This prevents close button clicks from being processed during dimension calculation
 	cm.activeContext = &activeContext{
 		widget:     widget,
 		clickPos:   clickPos,
-		dimensions: dims,
+		dimensions: layout.Dimensions{}, // Will be calculated during layout
 		tag:        &cm.activeContext,
 	}
 }
@@ -258,6 +299,8 @@ func (cm *ContextManager) ShowContextWidget(gtx layout.Context, widget layout.Wi
 // dismissContextWidget hides the currently displayed context widget.
 func (cm *ContextManager) dismissContextWidget() {
 	cm.activeContext = nil
+	// Reset scrim clickable to ensure it doesn't interfere with new events
+	cm.scrimClickable = &Clickable{}
 }
 
 // isPointInContextWidget checks if a point is within the active context widget.
