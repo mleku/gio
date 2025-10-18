@@ -72,7 +72,6 @@ func nativeViewFor(e app.ViewEvent, size image.Point) (C.EGLNativeWindowType, fu
 }
 
 type (
-	C = layout.Context
 	D = layout.Dimensions
 )
 
@@ -189,20 +188,20 @@ func loop(w *app.Window) error {
 			// Clear background to white, even on embedded platforms such as webassembly.
 			paint.Fill(gtx.Ops, color.NRGBA{A: 0xff, R: 0xff, G: 0xff, B: 0xff})
 			layout.Flex{Axis: layout.Vertical}.Layout(gtx,
-				layout.Flexed(1, func(gtx C) D {
+				layout.Flexed(1, func(gtx layout.Context) D {
 					return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
 						// r1c1
-						layout.Flexed(1, func(gtx C) D { return topLeft.Layout(gtx) }),
+						layout.Flexed(1, func(gtx layout.Context) D { return topLeft.Layout(gtx) }),
 						// r1c2
-						layout.Flexed(1, func(gtx C) D { return topRight.Layout(gtx) }),
+						layout.Flexed(1, func(gtx layout.Context) D { return topRight.Layout(gtx) }),
 					)
 				}),
-				layout.Flexed(1, func(gtx C) D {
+				layout.Flexed(1, func(gtx layout.Context) D {
 					return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
 						// r2c1
-						layout.Flexed(1, func(gtx C) D { return botLeft.Layout(gtx) }),
+						layout.Flexed(1, func(gtx layout.Context) D { return botLeft.Layout(gtx) }),
 						// r2c2
-						layout.Flexed(1, func(gtx C) D { return botRight.Layout(gtx) }),
+						layout.Flexed(1, func(gtx layout.Context) D { return botRight.Layout(gtx) }),
 					)
 				}),
 			)
