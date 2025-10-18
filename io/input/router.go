@@ -211,6 +211,15 @@ func (s Source) Event(filters ...event.Filter) (event.Event, bool) {
 	return s.r.Event(filters...)
 }
 
+// MousePosition returns the current mouse position in window coordinates.
+// Returns (0, 0) if no mouse is present or if the mouse is outside the window.
+func (s Source) MousePosition() image.Point {
+	if !s.Enabled() {
+		return image.Point{}
+	}
+	return s.r.MousePosition()
+}
+
 func (q *Router) Event(filters ...event.Filter) (event.Event, bool) {
 	// Merge filters into scratch filters.
 	q.scratchFilters = q.scratchFilters[:0]
@@ -756,6 +765,21 @@ func (q *Router) PrimaryClipboardRequested() bool {
 // Cursor returns the last cursor set.
 func (q *Router) Cursor() pointer.Cursor {
 	return q.state().cursor
+}
+
+// MousePosition returns the current mouse position in window coordinates.
+// Returns (0, 0) if no mouse is present or if the mouse is outside the window.
+func (q *Router) MousePosition() image.Point {
+	state := q.state()
+	for _, p := range state.pointers {
+		if p.last.Source == pointer.Mouse {
+			return image.Point{
+				X: int(p.last.Position.X),
+				Y: int(p.last.Position.Y),
+			}
+		}
+	}
+	return image.Point{}
 }
 
 // SemanticAt returns the first semantic description under pos, if any.

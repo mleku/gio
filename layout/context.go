@@ -3,6 +3,7 @@
 package layout
 
 import (
+	"image"
 	"time"
 
 	"gio.mleku.dev/io/input"
@@ -32,6 +33,17 @@ type Context struct {
 	// It is not for use by widgets.
 	Values map[string]any
 
+	// WindowDimensions is the dimensions of the window in Dp.
+	WindowDimensions image.Point
+
+	// MousePosition is the current mouse cursor position relative to the window
+	// dimensions, or outside if the cursor is outside the window.
+	MousePosition image.Point
+
+	// WidgetPosition is the top-left position of the current widget as a
+	// coordinate of the window.
+	WidgetPosition image.Point
+
 	input.Source
 	*op.Ops
 }
@@ -49,5 +61,29 @@ func (c Context) Sp(v unit.Sp) int {
 // Disabled returns a copy of this context that don't deliver any events.
 func (c Context) Disabled() Context {
 	c.Source = c.Source.Disabled()
+	return c
+}
+
+// WindowSize returns the window dimensions in Dp.
+func (c Context) WindowSize() image.Point {
+	return c.WindowDimensions
+}
+
+// CursorPosition returns the current mouse cursor position relative to the window
+// dimensions, or outside if the cursor is outside the window.
+func (c Context) CursorPosition() image.Point {
+	return c.MousePosition
+}
+
+// WidgetOffset returns the top-left position of the current widget as a
+// coordinate of the window.
+func (c Context) WidgetOffset() image.Point {
+	return c.WidgetPosition
+}
+
+// WithOffset returns a copy of this context with the widget position
+// offset by the given amount.
+func (c Context) WithOffset(offset image.Point) Context {
+	c.WidgetPosition = c.WidgetPosition.Add(offset)
 	return c
 }

@@ -83,6 +83,9 @@ type Insets struct {
 //	  Source: e.Source,
 //	  Metric: e.Metric,
 //	  Constraints: layout.Exact(e.Size),
+//	  WindowDimensions: e.Size,
+//	  MousePosition: e.Source.MousePosition(),
+//	  WidgetPosition: image.Point{},
 //	}
 //
 // NewContext calls ops.Reset and adjusts ops for e.Insets.
@@ -90,6 +93,7 @@ func NewContext(ops *op.Ops, e FrameEvent) layout.Context {
 	ops.Reset()
 
 	size := e.Size
+	widgetOffset := image.Point{}
 
 	if e.Insets != (Insets{}) {
 		left := e.Metric.Dp(e.Insets.Left)
@@ -101,14 +105,18 @@ func NewContext(ops *op.Ops, e FrameEvent) layout.Context {
 
 		size.X -= left + e.Metric.Dp(e.Insets.Right)
 		size.Y -= top + e.Metric.Dp(e.Insets.Bottom)
+		widgetOffset = image.Point{X: left, Y: top}
 	}
 
 	return layout.Context{
-		Ops:         ops,
-		Now:         e.Now,
-		Source:      e.Source,
-		Metric:      e.Metric,
-		Constraints: layout.Exact(size),
+		Ops:              ops,
+		Now:              e.Now,
+		Source:           e.Source,
+		Metric:           e.Metric,
+		Constraints:      layout.Exact(size),
+		WindowDimensions: e.Size,
+		MousePosition:    e.Source.MousePosition(),
+		WidgetPosition:   widgetOffset,
 	}
 }
 
