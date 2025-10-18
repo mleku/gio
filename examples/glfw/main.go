@@ -193,8 +193,6 @@ func registerCallbacks(window *glfw.Window, q *input.Router) {
 			btn = pointer.ButtonPrimary
 		case glfw.MouseButton2:
 			btn = pointer.ButtonSecondary
-		case glfw.MouseButton3:
-			btn = pointer.ButtonTertiary
 		}
 		var typ pointer.Kind
 		switch action {

@@ -23,10 +23,10 @@ func (m *mass) move(f r2.Vec) {
 	// F = ma
 	f.X /= m.m
 	f.Y /= m.m
-	m.v = m.v.Add(f)
+	m.v = r2.Add(m.v, f)
 
 	// Update position.
-	m.d = m.d.Add(m.v)
+	m.d = r2.Add(m.d, m.v)
 }
 
 func galaxy(numStars int, rnd *rand.Rand) ([]*mass, barneshut.Plane) {
@@ -42,7 +42,7 @@ func galaxy(numStars int, rnd *rand.Rand) ([]*mass, barneshut.Plane) {
 			m: rnd.Float64(),
 		}
 		// Aim at the ground and miss.
-		s.d = s.d.Scale(-1).Add(r2.Vec{
+		s.d = r2.Add(r2.Scale(-1, s.d), r2.Vec{
 			X: 10 * rnd.NormFloat64(),
 			Y: 10 * rnd.NormFloat64(),
 		})
@@ -73,7 +73,7 @@ func simulate(stars []*mass, plane barneshut.Plane, dist *distribution) {
 	// and an imaginary gravitational constant.
 	const G = 10
 	for j, s := range stars {
-		vectors[j] = plane.ForceOn(s, theta, barneshut.Gravity2).Scale(G)
+		vectors[j] = r2.Scale(G, plane.ForceOn(s, theta, barneshut.Gravity2))
 	}
 
 	// Update positions.

@@ -88,7 +88,7 @@ func (d *distribution) Update(stars []*mass) {
 // distortion during the visualization, though it does not stop it
 // completely.
 func (d *distribution) EnsureSquare() {
-	diff := d.max.Sub(d.min)
+	diff := r2.Sub(d.max, d.min)
 	if diff.X > diff.Y {
 		padding := (diff.X - diff.Y) / 2
 		d.max.Y += padding
