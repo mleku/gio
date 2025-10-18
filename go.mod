@@ -34,6 +34,7 @@ require (
 
 require (
 	github.com/chromedp/sysutil v1.1.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-json-experiment/json v0.0.0-20250725192818-e39067aee2d2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
@@ -41,4 +42,5 @@ require (
 	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
+	lol.mleku.dev v1.0.3 // indirect
 )

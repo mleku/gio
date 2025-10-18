@@ -5,7 +5,8 @@ package widget
 import (
 	"image"
 	"image/color"
-	"log"
+
+	"lol.mleku.dev/log"
 
 	"gio.mleku.dev/io/event"
 	"gio.mleku.dev/io/pointer"
@@ -80,11 +81,11 @@ func (cm *ContextManager) UpdateWidgetBounds(widget ContextWidget, bounds image.
 
 // Update processes right-click events and manages context widget display.
 func (cm *ContextManager) Update(gtx layout.Context) {
-	log.Printf("*** CONTEXT MANAGER UPDATE CALLED ***")
-	log.Printf("ContextManager.Update called, activeContext=%t", cm.activeContext != nil)
+	log.I.F("*** CONTEXT MANAGER UPDATE CALLED ***")
+	log.I.F("ContextManager.Update called, activeContext=%t", cm.activeContext != nil)
 
 	// Always process right-click events first, regardless of active context state
-	log.Printf("Processing right-click events, registeredWidgets=%d", len(cm.registeredWidgets))
+	log.I.F("Processing right-click events, registeredWidgets=%d", len(cm.registeredWidgets))
 	for {
 		ev, ok := gtx.Event(pointer.Filter{
 			Target: cm,
@@ -103,7 +104,7 @@ func (cm *ContextManager) Update(gtx layout.Context) {
 			continue
 		}
 
-		log.Printf("Right-click detected at position: %v", e.Position.Round())
+		log.I.F("Right-click detected at position: %v", e.Position.Round())
 
 		// Find the highest priority widget that contains the click
 		var clickedWidget *registeredWidget
@@ -158,7 +159,7 @@ func (cm *ContextManager) Update(gtx layout.Context) {
 
 			// Double-check that we still have an active context
 			if cm.activeContext == nil {
-				log.Printf("Scrim click received but no active context - ignoring")
+				log.I.F("Scrim click received but no active context - ignoring")
 				continue
 			}
 
@@ -171,7 +172,7 @@ func (cm *ContextManager) Update(gtx layout.Context) {
 			}
 
 			if !clickPos.In(contextMenuBounds) {
-				log.Printf("Click outside context menu, dismissing")
+				log.I.F("Click outside context menu, dismissing")
 				cm.dismissContextWidget()
 				return
 			}
