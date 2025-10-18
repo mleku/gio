@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: Unlicense OR MIT
+
+package main
+
+import (
+	"image"
+	"testing"
+	"time"
+
+	"gio.mleku.dev/f32"
+	"gio.mleku.dev/font/gofont"
+	"gio.mleku.dev/gpu/headless"
+	"gio.mleku.dev/layout"
+	"gio.mleku.dev/op"
+	"gio.mleku.dev/text"
+	"gio.mleku.dev/widget/material"
+)
+
+func BenchmarkUI(b *testing.B)        { benchmarkUI(b, transformation{}) }
+func BenchmarkUI_Offset(b *testing.B) { benchmarkUI(b, transformation{offset: true}) }
+func BenchmarkUI_Scale(b *testing.B)  { benchmarkUI(b, transformation{scale: true}) }
+func BenchmarkUI_Rotate(b *testing.B) { benchmarkUI(b, transformation{rotate: true}) }
+func BenchmarkUI_All(b *testing.B) {
+	benchmarkUI(b, transformation{offset: true, rotate: true, scale: true})
+}
+
+func benchmarkUI(b *testing.B, transform transformation) {
+	th := material.NewTheme()
+	th.Shaper = text.NewShaper(text.WithCollection(gofont.Collection()))
+
+	w, err := headless.NewWindow(800, 600)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer w.Release()
+
+	var layoutTime time.Duration
+	var frameTime time.Duration
+
+	var ops op.Ops
+	for i := 0; b.Loop(); i++ {
+		ops.Reset()
+		gtx := layout.Context{
+			Ops:         &ops,
+			Constraints: layout.Exact(image.Pt(800, 600)),
+		}
+		addTransform(i, transform, gtx.Ops)
+		layoutTime += measure(func() { kitchen(gtx, th) })
+		frameTime += measure(func() { w.Frame(&ops) })
+	}
+	b.StopTimer()
+
+	b.ReportMetric(float64(layoutTime.Nanoseconds())/float64(b.N), "ns/layout")
+	b.ReportMetric(float64(frameTime.Nanoseconds())/float64(b.N), "ns/frame")
+}
+
+type transformation struct {
+	offset bool
+	rotate bool
+	scale  bool
+}
+
+func addTransform(i int, transform transformation, ops *op.Ops) {
+	if !(transform.offset || transform.rotate || transform.scale) {
+		return
+	}
+	dt := float32(i)
+	tr := f32.Affine2D{}
+	if transform.rotate {
+		angle := dt * .1
+		tr = tr.Rotate(f32.Pt(300, 20), -angle)
+	}
+	if transform.scale {
+		scale := max(1.0-dt*.5, 0.5)
+		tr = tr.Scale(f32.Pt(300, 20), f32.Pt(scale, scale))
+	}
+	if transform.offset {
+		offset := min(dt*50, 200)
+		tr = tr.Offset(f32.Pt(0, offset))
+	}
+	op.Affine(tr).Add(ops)
+}
+
+func measure(fn func()) time.Duration {
+	start := time.Now()
+	fn()
+	return time.Since(start)
+}
