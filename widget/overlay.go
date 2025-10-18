@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"time"
 
 	"gio.mleku.dev/io/event"
 	"gio.mleku.dev/io/pointer"
@@ -40,6 +41,13 @@ type Overlay struct {
 
 	// Z-index for ordering (higher values appear on top)
 	zIndex int
+
+	// Animation state
+	opacity           float32 // Current opacity (0.0 to 1.0)
+	targetOpacity     float32 // Target opacity
+	animating         bool    // Whether currently animating
+	animationDuration int64   // Animation duration in milliseconds
+	startTime         int64   // Animation start time
 }
 
 // NewOverlayStack creates a new overlay stack.
@@ -57,14 +65,19 @@ func (os *OverlayStack) SetInvalidateFunc(fn func()) {
 // Push adds a new overlay to the stack.
 func (os *OverlayStack) Push(id string, content layout.Widget, pos image.Point, dims image.Point) *Overlay {
 	overlay := &Overlay{
-		id:          id,
-		visible:     true,
-		scrim:       true,
-		color:       [4]float32{0, 0, 0, 0.5}, // Semi-transparent black
-		content:     content,
-		contentPos:  pos,
-		contentDims: dims,
-		zIndex:      len(os.overlays), // Higher z-index for newer overlays
+		id:                id,
+		visible:           true,
+		scrim:             true,
+		color:             [4]float32{0, 0, 0, 0.5}, // Semi-transparent black
+		content:           content,
+		contentPos:        pos,
+		contentDims:       dims,
+		zIndex:            len(os.overlays), // Higher z-index for newer overlays
+		opacity:           0.0,              // Start invisible for fade in
+		targetOpacity:     1.0,              // Fade to fully visible
+		animating:         true,
+		animationDuration: 200, // 200ms animation
+		startTime:         time.Now().UnixMilli(),
 	}
 
 	// Remove any existing overlay with the same ID
@@ -84,9 +97,13 @@ func (os *OverlayStack) Pop() {
 
 // Remove removes an overlay by ID.
 func (os *OverlayStack) Remove(id string) {
-	for i, overlay := range os.overlays {
+	for _, overlay := range os.overlays {
 		if overlay.id == id {
-			os.overlays = append(os.overlays[:i], os.overlays[i+1:]...)
+			// Start fade out animation instead of immediate removal
+			overlay.targetOpacity = 0.0
+			overlay.animating = true
+			overlay.startTime = time.Now().UnixMilli()
+			overlay.animationDuration = 200 // 200ms fade out
 			os.invalidate()
 			return
 		}
@@ -183,6 +200,9 @@ func (os *OverlayStack) Layout(gtx layout.Context) layout.Dimensions {
 		return layout.Dimensions{}
 	}
 
+	// Update animations
+	os.updateAnimations()
+
 	// Get the window dimensions
 	windowDims := gtx.Constraints.Max
 
@@ -197,6 +217,45 @@ func (os *OverlayStack) Layout(gtx layout.Context) layout.Dimensions {
 	return layout.Dimensions{Size: windowDims}
 }
 
+// updateAnimations updates all overlay animations and removes completed fade-outs.
+func (os *OverlayStack) updateAnimations() {
+	currentTime := time.Now().UnixMilli()
+	needsInvalidation := false
+
+	// Process overlays in reverse order to safely remove items
+	for i := len(os.overlays) - 1; i >= 0; i-- {
+		overlay := os.overlays[i]
+
+		if !overlay.animating {
+			continue
+		}
+
+		elapsed := currentTime - overlay.startTime
+		progress := float32(elapsed) / float32(overlay.animationDuration)
+
+		if progress >= 1.0 {
+			// Animation complete
+			overlay.opacity = overlay.targetOpacity
+			overlay.animating = false
+
+			// If fade out is complete, remove the overlay
+			if overlay.targetOpacity == 0.0 {
+				os.overlays = append(os.overlays[:i], os.overlays[i+1:]...)
+			}
+			needsInvalidation = true
+		} else {
+			// Interpolate opacity
+			overlay.opacity = overlay.opacity + (overlay.targetOpacity-overlay.opacity)*progress
+			needsInvalidation = true
+		}
+	}
+
+	// Invalidate if any animations are running
+	if needsInvalidation {
+		os.invalidate()
+	}
+}
+
 // layoutOverlay renders a single overlay.
 func (os *OverlayStack) layoutOverlay(gtx layout.Context, overlay *Overlay, windowDims image.Point) {
 	// Draw scrim background if enabled
@@ -205,7 +264,7 @@ func (os *OverlayStack) layoutOverlay(gtx layout.Context, overlay *Overlay, wind
 			R: uint8(overlay.color[0] * 255),
 			G: uint8(overlay.color[1] * 255),
 			B: uint8(overlay.color[2] * 255),
-			A: uint8(overlay.color[3] * 255),
+			A: uint8(overlay.color[3] * overlay.opacity * 255),
 		}
 
 		// Draw scrim above content
@@ -254,6 +313,10 @@ func (os *OverlayStack) layoutOverlay(gtx layout.Context, overlay *Overlay, wind
 
 	// Add event handler for content area to prevent scrim clicks
 	event.Op(gtx.Ops, &overlay.contentPos) // Use contentPos as unique tag
+
+	// Apply opacity to content
+	opacityStack := paint.PushOpacity(gtx.Ops, overlay.opacity)
+	defer opacityStack.Pop()
 
 	// Create new context for content with proper constraints
 	contentGtx := gtx
