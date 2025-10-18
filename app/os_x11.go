@@ -641,30 +641,24 @@ func (h *x11EventHandler) handleEvents() bool {
 			case C.Button3:
 				btn = pointer.ButtonSecondary
 			case C.Button4:
-				ev.Kind = pointer.Scroll
-				// scroll up or left (if shift is pressed).
-				if ev.Modifiers == key.ModShift {
-					ev.Scroll.X = -scrollScale
-				} else {
-					ev.Scroll.Y = -scrollScale
-				}
+				// Button 4 - scroll up/left button
+				btn = pointer.ButtonQuaternary
 			case C.Button5:
-				// scroll down or right (if shift is pressed).
-				ev.Kind = pointer.Scroll
-				if ev.Modifiers == key.ModShift {
-					ev.Scroll.X = +scrollScale
-				} else {
-					ev.Scroll.Y = +scrollScale
-				}
+				// Button 5 - scroll down/right button
+				btn = pointer.ButtonQuinary
 			case 6:
 				// http://xahlee.info/linux/linux_x11_mouse_button_number.html
-				// scroll left.
-				ev.Kind = pointer.Scroll
-				ev.Scroll.X = -scrollScale * 2
+				// Button 6 - left scroll
+				btn = pointer.ButtonSenary
 			case 7:
-				// scroll right
-				ev.Kind = pointer.Scroll
-				ev.Scroll.X = +scrollScale * 2
+				// Button 7 - right scroll
+				btn = pointer.ButtonSeptenary
+			case 8:
+				// Button 8 - back navigation
+				btn = pointer.ButtonOctonary
+			case 9:
+				// Button 9 - forward navigation
+				btn = pointer.ButtonNonary
 			default:
 				continue
 			}

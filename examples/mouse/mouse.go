@@ -36,6 +36,8 @@ func loop(w *app.Window) error {
 	// Initialize the mouse position.
 	var mousePos f32.Point
 	mousePresent := false
+	// Track currently pressed buttons
+	var pressedButtons pointer.Buttons
 	// Create a material theme.
 	th := material.NewTheme()
 	for {
@@ -52,7 +54,7 @@ func loop(w *app.Window) error {
 			for {
 				ev, ok := gtx.Event(pointer.Filter{
 					Target: &mousePos,
-					Kinds:  pointer.Move | pointer.Enter | pointer.Leave,
+					Kinds:  pointer.Move | pointer.Enter | pointer.Leave | pointer.Press | pointer.Release,
 				})
 				if !ok {
 					break
@@ -62,8 +64,24 @@ func loop(w *app.Window) error {
 					switch ev.Kind {
 					case pointer.Enter:
 						mousePresent = true
+						log.Printf("Mouse entered window at (%.2f, %.2f)", ev.Position.X, ev.Position.Y)
 					case pointer.Leave:
 						mousePresent = false
+						log.Printf("Mouse left window at (%.2f, %.2f)", ev.Position.X, ev.Position.Y)
+					case pointer.Press:
+						// Find which button was just pressed
+						newPressed := ev.Buttons &^ pressedButtons
+						if newPressed != 0 {
+							log.Printf("Mouse button pressed at (%.2f, %.2f), button: %s (value: %d)", ev.Position.X, ev.Position.Y, newPressed.String(), newPressed)
+						}
+						pressedButtons = ev.Buttons
+					case pointer.Release:
+						// Find which button was just released
+						released := pressedButtons &^ ev.Buttons
+						if released != 0 {
+							log.Printf("Mouse button released at (%.2f, %.2f), button: %s (value: %d)", ev.Position.X, ev.Position.Y, released.String(), released)
+						}
+						pressedButtons = ev.Buttons
 					}
 					mousePos = ev.Position
 				}

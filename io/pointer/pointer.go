@@ -92,7 +92,7 @@ type Priority uint8
 type Source uint8
 
 // Buttons is a set of mouse buttons
-type Buttons uint8
+type Buttons uint16
 
 // Cursor denotes a pre-defined cursor shape. Its Add method adds an
 // operation that sets the cursor shape for the current clip area.
@@ -225,6 +225,14 @@ const (
 	// ButtonQuinary is the fifth button, usually used for browser
 	// navigation (forward)
 	ButtonQuinary
+	// ButtonSenary is the sixth button, usually left scroll
+	ButtonSenary
+	// ButtonSeptenary is the seventh button, usually right scroll
+	ButtonSeptenary
+	// ButtonOctonary is the eighth button, usually back navigation
+	ButtonOctonary
+	// ButtonNonary is the ninth button, usually forward navigation
+	ButtonNonary
 )
 
 func (s ScrollRange) Union(s2 ScrollRange) ScrollRange {
@@ -337,6 +345,18 @@ func (b Buttons) String() string {
 	}
 	if b.Contain(ButtonQuinary) {
 		strs = append(strs, "ButtonQuinary")
+	}
+	if b.Contain(ButtonSenary) {
+		strs = append(strs, "ButtonSenary")
+	}
+	if b.Contain(ButtonSeptenary) {
+		strs = append(strs, "ButtonSeptenary")
+	}
+	if b.Contain(ButtonOctonary) {
+		strs = append(strs, "ButtonOctonary")
+	}
+	if b.Contain(ButtonNonary) {
+		strs = append(strs, "ButtonNonary")
 	}
 	return strings.Join(strs, "|")
 }

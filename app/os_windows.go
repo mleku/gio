@@ -1057,6 +1057,26 @@ func getPointerButtons(pi windows.PointerInfo) pointer.Buttons {
 	} else {
 		btns &^= pointer.ButtonQuinary
 	}
+	if pi.PointerFlags&windows.POINTER_FLAG_SIXTHBUTTON != 0 {
+		btns |= pointer.ButtonSenary
+	} else {
+		btns &^= pointer.ButtonSenary
+	}
+	if pi.PointerFlags&windows.POINTER_FLAG_SEVENTHBUTTON != 0 {
+		btns |= pointer.ButtonSeptenary
+	} else {
+		btns &^= pointer.ButtonSeptenary
+	}
+	if pi.PointerFlags&windows.POINTER_FLAG_EIGHTHBUTTON != 0 {
+		btns |= pointer.ButtonOctonary
+	} else {
+		btns &^= pointer.ButtonOctonary
+	}
+	if pi.PointerFlags&windows.POINTER_FLAG_NINTHBUTTON != 0 {
+		btns |= pointer.ButtonNonary
+	} else {
+		btns &^= pointer.ButtonNonary
+	}
 
 	return btns
 }
