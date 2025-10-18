@@ -80,6 +80,63 @@ func (cm *ContextManager) UpdateWidgetBounds(widget ContextWidget, bounds image.
 
 // Update processes right-click events and manages context widget display.
 func (cm *ContextManager) Update(gtx layout.Context) {
+	log.Printf("*** CONTEXT MANAGER UPDATE CALLED ***")
+	log.Printf("ContextManager.Update called, activeContext=%t", cm.activeContext != nil)
+
+	// Always process right-click events first, regardless of active context state
+	log.Printf("Processing right-click events, registeredWidgets=%d", len(cm.registeredWidgets))
+	for {
+		ev, ok := gtx.Event(pointer.Filter{
+			Target: cm,
+			Kinds:  pointer.Press,
+		})
+		if !ok {
+			break
+		}
+		e, ok := ev.(pointer.Event)
+		if !ok {
+			continue
+		}
+
+		// Only handle right-clicks
+		if e.Buttons != pointer.ButtonSecondary {
+			continue
+		}
+
+		log.Printf("Right-click detected at position: %v", e.Position.Round())
+
+		// Find the highest priority widget that contains the click
+		var clickedWidget *registeredWidget
+		highestPriority := -1
+		clickPos := e.Position.Round()
+
+		for _, reg := range cm.registeredWidgets {
+			// Check if click is within widget bounds
+			if clickPos.In(reg.bounds) && reg.priority > highestPriority {
+				clickedWidget = &reg
+				highestPriority = reg.priority
+			}
+		}
+
+		// If no widget was hit, use the lowest priority widget (background)
+		if clickedWidget == nil {
+			lowestPriority := cm.registeredWidgets[0]
+			for _, reg := range cm.registeredWidgets {
+				if reg.priority < lowestPriority.priority {
+					lowestPriority = reg
+				}
+			}
+			clickedWidget = &lowestPriority
+		}
+
+		if clickedWidget.widget != nil {
+			contextWidget := clickedWidget.widget.ContextMenu(gtx, clickPos)
+			if contextWidget != nil {
+				cm.ShowContextWidget(gtx, contextWidget, clickPos)
+			}
+		}
+	}
+
 	// If context menu is active, check for scrim clicks to dismiss it
 	if cm.activeContext != nil {
 		// Register scrim clickable for pointer events
@@ -96,6 +153,12 @@ func (cm *ContextManager) Update(gtx layout.Context) {
 			}
 			e, ok := ev.(pointer.Event)
 			if !ok {
+				continue
+			}
+
+			// Double-check that we still have an active context
+			if cm.activeContext == nil {
+				log.Printf("Scrim click received but no active context - ignoring")
 				continue
 			}
 
@@ -116,61 +179,6 @@ func (cm *ContextManager) Update(gtx layout.Context) {
 		return
 	}
 
-	// Process right-click events only when no context menu is active
-	for {
-		ev, ok := gtx.Event(pointer.Filter{
-			Target: cm,
-			Kinds:  pointer.Press,
-		})
-		if !ok {
-			break
-		}
-
-		e, ok := ev.(pointer.Event)
-		if !ok {
-			continue
-		}
-
-		// Only handle right-clicks
-		if e.Buttons != pointer.ButtonSecondary {
-			continue
-		}
-
-		// Find the widget that was clicked based on bounds and priority
-		if len(cm.registeredWidgets) > 0 {
-			clickPos := e.Position.Round()
-
-			// Find the highest priority widget that contains the click point
-			var clickedWidget registeredWidget
-			highestPriority := -1
-
-			for _, reg := range cm.registeredWidgets {
-				// Check if click is within widget bounds
-				if clickPos.In(reg.bounds) && reg.priority > highestPriority {
-					clickedWidget = reg
-					highestPriority = reg.priority
-				}
-			}
-
-			// If no widget was hit, use the lowest priority widget (background)
-			if clickedWidget.widget == nil {
-				lowestPriority := cm.registeredWidgets[0]
-				for _, reg := range cm.registeredWidgets {
-					if reg.priority < lowestPriority.priority {
-						lowestPriority = reg
-					}
-				}
-				clickedWidget = lowestPriority
-			}
-
-			if clickedWidget.widget != nil {
-				contextWidget := clickedWidget.widget.ContextMenu(gtx, clickPos)
-				if contextWidget != nil {
-					cm.ShowContextWidget(gtx, contextWidget, clickPos)
-				}
-			}
-		}
-	}
 }
 
 // Layout renders the active context widget if any.
