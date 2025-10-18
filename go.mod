@@ -4,9 +4,7 @@ go 1.25.0
 
 require (
 	eliasnaur.com/font v0.0.0-20230308162249-dd43949cb42d
-	gioui.org v0.9.0
 	gioui.org/shader v1.0.8
-	gioui.org/x v0.9.0
 	git.sr.ht/~jackmordaunt/go-toast v1.1.2
 	git.wow.st/gmp/jni v0.0.0-20210610011705-34026c7e22d0
 	github.com/akavel/rsrc v0.10.2
@@ -33,7 +31,11 @@ require (
 )
 
 require (
+	gioui.org v0.0.0-20220830130127-276b7eefdd65 // indirect
+	gioui.org/cpu v0.0.0-20210817075930-8d6a761490d2 // indirect
+	github.com/benoitkugler/textlayout v0.1.3 // indirect
 	github.com/chromedp/sysutil v1.1.0 // indirect
+	github.com/gioui/uax v0.2.1-0.20220819135011-cda973fac06d // indirect
 	github.com/go-json-experiment/json v0.0.0-20250725192818-e39067aee2d2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
