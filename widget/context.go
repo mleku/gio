@@ -5,6 +5,7 @@ package widget
 import (
 	"image"
 	"image/color"
+	"log"
 
 	"gio.mleku.dev/io/event"
 	"gio.mleku.dev/io/pointer"
@@ -106,7 +107,8 @@ func (cm *ContextManager) Update(gtx layout.Context) {
 				Max: cm.activeContext.position.Add(cm.activeContext.dimensions.Size),
 			}
 
-			if !clickPos.In(contextMenuBounds) && e.Buttons == pointer.ButtonPrimary {
+			if !clickPos.In(contextMenuBounds) {
+				log.Printf("Click outside context menu, dismissing")
 				cm.dismissContextWidget()
 				return
 			}
