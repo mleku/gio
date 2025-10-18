@@ -38,6 +38,9 @@ func run(w *app.Window) error {
 	// Create a context manager
 	contextManager := widget.NewContextManager()
 
+	// Create a tooltip manager
+	tooltipManager := widget.NewTooltipManager(func() { w.Invalidate() })
+
 	// Create two example widgets with context menus
 	button1 := &ExampleButton{
 		Clickable: widget.Clickable{},
@@ -59,6 +62,10 @@ func run(w *app.Window) error {
 	contextManager.RegisterWidget(button2, 10)       // Lower priority for blue button
 	contextManager.RegisterWidget(mainBackground, 1) // Lowest priority for background
 
+	// Register widgets with the tooltip manager
+	tooltipManager.RegisterWidget(button1)
+	tooltipManager.RegisterWidget(button2)
+
 	for {
 		switch e := w.Event().(type) {
 		case app.DestroyEvent:
@@ -72,6 +79,9 @@ func run(w *app.Window) error {
 
 			// Add the context manager handler FIRST, before any widgets
 			contextManager.AddContextHandler(gtx.Ops)
+
+			// Add the tooltip manager handler
+			tooltipManager.AddTooltipHandler(gtx.Ops)
 
 			// Layout the main UI - two buttons side by side
 			layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
@@ -107,6 +117,7 @@ func run(w *app.Window) error {
 							Max: image.Point{X: buttonX + 150, Y: buttonY + 80},
 						}
 						contextManager.UpdateWidgetBounds(button1, bounds)
+						tooltipManager.UpdateWidgetBounds(button1, bounds)
 
 						return dims
 					}),
@@ -138,6 +149,7 @@ func run(w *app.Window) error {
 							Max: image.Point{X: buttonX + 150, Y: buttonY + 80},
 						}
 						contextManager.UpdateWidgetBounds(button2, bounds)
+						tooltipManager.UpdateWidgetBounds(button2, bounds)
 
 						return dims
 					}),
@@ -158,12 +170,16 @@ func run(w *app.Window) error {
 			contextManager.Update(gtx)
 			contextManager.Layout(gtx)
 
+			// Update and layout the tooltip manager
+			tooltipManager.Update(gtx)
+			tooltipManager.Layout(gtx, th.Shaper)
+
 			e.Frame(gtx.Ops)
 		}
 	}
 }
 
-// ExampleButton is a button widget that implements ContextWidget
+// ExampleButton is a button widget that implements ContextWidget and TooltipWidget
 type ExampleButton struct {
 	widget.Clickable
 	Label string
@@ -171,6 +187,11 @@ type ExampleButton struct {
 	// Persistent clickables for context menu items
 	menuItemClickables []*widget.Clickable
 	closeButton        *widget.Clickable
+}
+
+// Tooltip implements the TooltipWidget interface
+func (b *ExampleButton) Tooltip() string {
+	return "tooltip: " + b.Label
 }
 
 // ContextMenu implements the ContextWidget interface
