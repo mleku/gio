@@ -36,11 +36,13 @@ type ContextManager struct {
 }
 
 type activeContext struct {
-	widget     layout.Widget
-	position   image.Point
-	tag        event.Tag
-	clickPos   image.Point
-	dimensions layout.Dimensions
+	widget      layout.Widget
+	position    image.Point
+	tag         event.Tag
+	clickPos    image.Point
+	dimensions  layout.Dimensions
+	firstLayout bool // Track if this is the first layout call
+	layoutCount int  // Track number of layout calls
 }
 
 type registeredWidget struct {
@@ -179,6 +181,8 @@ func (cm *ContextManager) Layout(gtx layout.Context) layout.Dimensions {
 
 	// Calculate dimensions on first layout call if not already calculated
 	if cm.activeContext.dimensions.Size.X == 0 && cm.activeContext.dimensions.Size.Y == 0 {
+		cm.activeContext.layoutCount++
+
 		macro := op.Record(gtx.Ops)
 		tempGtx := gtx
 		tempGtx.Constraints = layout.Constraints{
@@ -190,8 +194,12 @@ func (cm *ContextManager) Layout(gtx layout.Context) layout.Dimensions {
 
 		// If dimensions are zero, dismiss the context menu
 		if dims.Size.X == 0 && dims.Size.Y == 0 {
-			cm.dismissContextWidget()
-			return layout.Dimensions{Size: cm.viewportSize}
+			if cm.activeContext.layoutCount <= 3 {
+				// Don't dismiss for first few layout calls with zero dimensions
+			} else {
+				cm.dismissContextWidget()
+				return layout.Dimensions{Size: cm.viewportSize}
+			}
 		}
 
 		cm.activeContext.dimensions = dims
@@ -289,10 +297,12 @@ func (cm *ContextManager) ShowContextWidget(gtx layout.Context, widget layout.Wi
 	// Don't calculate dimensions immediately - defer until layout phase
 	// This prevents close button clicks from being processed during dimension calculation
 	cm.activeContext = &activeContext{
-		widget:     widget,
-		clickPos:   clickPos,
-		dimensions: layout.Dimensions{}, // Will be calculated during layout
-		tag:        &cm.activeContext,
+		widget:      widget,
+		clickPos:    clickPos,
+		dimensions:  layout.Dimensions{}, // Will be calculated during layout
+		tag:         &cm.activeContext,
+		firstLayout: true, // Mark as first layout call
+		layoutCount: 0,    // Initialize layout count
 	}
 }
 
