@@ -78,14 +78,14 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 			}),
 			layout.Rigid(func(gtx C) D {
 				p.priceInput.Prefix = func(gtx C) D {
-					th := *th
-					th.Palette.Fg = color.NRGBA{R: 100, G: 100, B: 100, A: 255}
-					return material.Label(&th, th.TextSize, "$").Layout(gtx)
+					label := material.Label(th, th.TextSize, "$")
+					label.Color = color.NRGBA{R: 100, G: 100, B: 100, A: 255}
+					return label.Layout(gtx)
 				}
 				p.priceInput.Suffix = func(gtx C) D {
-					th := *th
-					th.Palette.Fg = color.NRGBA{R: 100, G: 100, B: 100, A: 255}
-					return material.Label(&th, th.TextSize, ".00").Layout(gtx)
+					label := material.Label(th, th.TextSize, ".00")
+					label.Color = color.NRGBA{R: 100, G: 100, B: 100, A: 255}
+					return label.Layout(gtx)
 				}
 				p.priceInput.SingleLine = true
 				p.priceInput.Alignment = p.inputAlignment
