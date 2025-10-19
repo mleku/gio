@@ -228,7 +228,7 @@ func (b iconAndTextButton) Layout(gtx layout.Context) layout.Dimensions {
 					if b.icon != nil {
 						size := gtx.Dp(unit.Dp(56)) - 2*gtx.Dp(unit.Dp(16))
 						gtx.Constraints = layout.Exact(image.Pt(size, size))
-						d = b.icon.Layout(gtx, b.theme.ContrastFg)
+						d = b.icon.Layout(gtx, b.theme.OnSurface())
 					}
 					return d
 				})
@@ -237,7 +237,7 @@ func (b iconAndTextButton) Layout(gtx layout.Context) layout.Dimensions {
 			layLabel := layout.Rigid(func(gtx C) D {
 				return layout.Inset{Left: textIconSpacer}.Layout(gtx, func(gtx C) D {
 					l := material.Body1(b.theme, b.word)
-					l.Color = b.theme.Palette.ContrastFg
+					l.Color = b.theme.OnSurface()
 					return l.Layout(gtx)
 				})
 			})

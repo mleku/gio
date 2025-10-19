@@ -49,7 +49,10 @@ func loop(w *app.Window) error {
 			return e.Err
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
-			component.Grid(th, &grid).Layout(gtx, sideLength, sideLength,
+
+			// Layout the grid
+			gridStyle := component.Grid(th, &grid)
+			gridStyle.Layout(gtx, sideLength, sideLength,
 				func(axis layout.Axis, index, constraint int) int {
 					return gtx.Dp(cellSize)
 				},
@@ -58,6 +61,7 @@ func loop(w *app.Window) error {
 					paint.FillShape(gtx.Ops, c, clip.Rect{Max: gtx.Constraints.Max}.Op())
 					return D{Size: gtx.Constraints.Max}
 				})
+
 			e.Frame(gtx.Ops)
 		}
 	}

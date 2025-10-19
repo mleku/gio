@@ -70,7 +70,8 @@ type (
 func init() {
 	theme = material.NewTheme()
 	theme.Shaper = text.NewShaper(text.WithCollection(gofont.Collection()))
-	theme.Palette.Fg = rgb(0x333333)
+	// Initialize theme with light mode and custom colors
+	theme.Colors = material.NewColorsWithMode(material.ThemeModeLight)
 }
 
 func newUI(fetchCommits func(string)) *UI {

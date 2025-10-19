@@ -179,7 +179,8 @@ var (
 
 func main() {
 	th.Shaper = text.NewShaper(text.WithCollection(gofont.Collection()))
-	th.Palette.Fg, th.Palette.Bg = th.Palette.Bg, th.Palette.Fg
+	// Initialize theme with dark mode for better galaxy visualization
+	th.Colors = material.NewColorsWithMode(material.ThemeModeDark)
 	dist := distribution{}
 
 	seed := time.Now().UnixNano()
@@ -212,11 +213,11 @@ func main() {
 			return
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, ev)
-			paint.Fill(gtx.Ops, th.Palette.Bg)
+			paint.Fill(gtx.Ops, th.Background())
 
 			layout.Center.Layout(gtx, func(gtx C) D {
 				return widget.Border{
-					Color: th.Fg,
+					Color: th.OnSurface(),
 					Width: unit.Dp(1),
 				}.Layout(gtx, func(gtx C) D {
 					if gtx.Constraints.Max.X > gtx.Constraints.Max.Y {

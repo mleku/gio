@@ -189,7 +189,7 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 			defer clip.UniformRRect(image.Rectangle{
 				Max: pt,
 			}, 0).Push(gtx.Ops).Pop()
-			paint.Fill(gtx.Ops, ui.theme.Palette.ContrastBg)
+			paint.Fill(gtx.Ops, ui.theme.OnSurface())
 			return layout.Dimensions{Size: pt}
 		}),
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {

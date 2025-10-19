@@ -92,7 +92,7 @@ func (r *Router) Layout(gtx layout.Context, th *material.Theme) layout.Dimension
 	if r.ModalNavDrawer.NavDestinationChanged() {
 		r.SwitchTo(r.ModalNavDrawer.CurrentNavDestination())
 	}
-	paint.Fill(gtx.Ops, th.Palette().Neutral100)
+	paint.Fill(gtx.Ops, th.Background())
 	content := layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{}.Layout(gtx,
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
