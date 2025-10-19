@@ -101,39 +101,66 @@ func (o *OutlineWidget) drawOutline(gtx app.Context) {
 	}
 }
 
-// drawRectangularOutline draws a rectangular outline using Gio's stroke operations
+// drawRectangularOutline draws a rectangular outline using RRect clipping
 func (o *OutlineWidget) drawRectangularOutline(gtx app.Context, bounds image.Rectangle) {
 	thickness := float32(o.Thickness)
+	radius := o.CornerRadius
 
-	// Create a rectangle for the outline
-	r := bounds
+	// Create outer rectangle for the border
+	outerRect := bounds
 
-	// Draw the outline using Gio's stroke operation
-	paint.FillShape(gtx.Ops,
-		o.OutlineColor,
-		clip.Stroke{
-			Path:  clip.RRect{Rect: r, NW: 0, NE: 0, SW: 0, SE: 0}.Path(gtx.Ops),
-			Width: thickness,
-		}.Op(),
+	// Create inner rectangle (spaced by border width)
+	innerRect := image.Rect(
+		bounds.Min.X+int(thickness),
+		bounds.Min.Y+int(thickness),
+		bounds.Max.X-int(thickness),
+		bounds.Max.Y-int(thickness),
 	)
+
+	// First clip: outer RRect with specified radius
+	defer clip.RRect{Rect: outerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
+	paint.Fill(gtx.Ops, o.OutlineColor)
+
+	// Second clip: inner RRect with specified radius (creates the hole)
+	defer clip.RRect{Rect: innerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
+
+	// Fill the inner area with the background color to "cut out" the center
+	// We need to get the background color from the custom render function
+	if o.Render != nil {
+		// Call the custom render function to get the background
+		o.Render(gtx, o.Widget)
+	}
 }
 
-// drawRoundedOutline draws a rounded rectangle outline using Gio's stroke operations
+// drawRoundedOutline draws a rounded rectangle outline using RRect clipping
 func (o *OutlineWidget) drawRoundedOutline(gtx app.Context, bounds image.Rectangle) {
 	thickness := float32(o.Thickness)
-	radius := float32(o.CornerRadius)
+	radius := o.CornerRadius
 
-	// Create a rounded rectangle for the outline
-	r := bounds
+	// Create outer rectangle for the border
+	outerRect := bounds
 
-	// Draw the rounded outline using Gio's stroke operation
-	paint.FillShape(gtx.Ops,
-		o.OutlineColor,
-		clip.Stroke{
-			Path:  clip.RRect{Rect: r, NW: int(radius), NE: int(radius), SW: int(radius), SE: int(radius)}.Path(gtx.Ops),
-			Width: thickness,
-		}.Op(),
+	// Create inner rectangle (spaced by border width)
+	innerRect := image.Rect(
+		bounds.Min.X+int(thickness),
+		bounds.Min.Y+int(thickness),
+		bounds.Max.X-int(thickness),
+		bounds.Max.Y-int(thickness),
 	)
+
+	// First clip: outer RRect with specified radius
+	defer clip.RRect{Rect: outerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
+	paint.Fill(gtx.Ops, o.OutlineColor)
+
+	// Second clip: inner RRect with specified radius (creates the hole)
+	defer clip.RRect{Rect: innerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
+
+	// Fill the inner area with the background color to "cut out" the center
+	// We need to get the background color from the custom render function
+	if o.Render != nil {
+		// Call the custom render function to get the background
+		o.Render(gtx, o.Widget)
+	}
 }
 
 // Fluent methods for OutlineWidget that delegate to the embedded Widget

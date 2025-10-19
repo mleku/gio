@@ -168,13 +168,18 @@ func (f *FlexWidget) layoutColumn() {
 	}
 }
 
-// RenderFlexWidget renders the flex widget and its items
-func (f *FlexWidget) RenderFlexWidget(gtx app.Context) {
+// GetWidget returns the underlying widget for the Renderer interface
+func (f *FlexWidget) GetWidget() *Widget {
+	return f.Widget
+}
+
+// RenderWidget renders the flex widget and its items (implements Renderer interface)
+func (f *FlexWidget) RenderWidget(gtx app.Context) {
 	// Layout items first
 	f.Layout()
 
 	// Render the flex container itself
-	f.RenderWidget(gtx)
+	f.Widget.RenderWidget(gtx)
 
 	// Render all flex items
 	for _, item := range f.Items {

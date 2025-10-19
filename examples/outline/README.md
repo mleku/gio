@@ -1,13 +1,13 @@
-# Outline Widget Example
+# Outline Example
 
-This example demonstrates a simple OutlineWidget that draws a 2px square corner outline box around the entire window.
+This example demonstrates an OutlineWidget inside nested Flex containers, automatically drawing at the constraint max boundary.
 
 ## Features Demonstrated
 
-- **Simple Outline**: A 2px black outline drawn around the entire window
-- **Square Corners**: No rounded corners, just straight edges
-- **Window Integration**: How to draw an outline around the window root
-- **Edge Drawing**: Drawing individual edges (top, bottom, left, right)
+- **Nested Flex Layout**: OutlineWidget inside Flex inside Flexed container
+- **Automatic Sizing**: OutlineWidget automatically sizes to constraint boundaries
+- **Background Fill**: Light cyan background fills the outline widget
+- **White Border**: 16px white border around the outline widget
 
 ## Layout Structure
 
@@ -15,39 +15,57 @@ The example creates a window with the following structure:
 
 ```
 Window Root
-└── Custom Render Function (Draws 2px black outline around entire window)
+└── Outer FlexWidget (Column direction)
+    └── Inner FlexWidget (Column direction, Flexed)
+        └── OutlineWidget (Flexed - fills available space)
 ```
 
 ## Code Example
 
 ```go
-// Set the root widget to render as an outline widget
+// Create an outline widget
+outlineWidget := widget.NewOutlineWidget().
+    SetThickness(16).
+    SetCornerRadius(0).
+    SetOutlineColor(color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+
+// Set custom background rendering for the outline widget
+outlineWidget.Render = func(gtx app.Context, w *widget.Widget) {
+    // Fill background with light cyan
+    paint.Fill(gtx.Ops, color.NRGBA{R: 0, G: 240, B: 240, A: 255})
+}
+
+// Create inner flex container
+innerFlex := widget.NewFlexWidget().
+    SetDirection(widget.FlexColumn)
+
+// Add the outline widget to the inner flex
+innerFlex.Flexed(outlineWidget)
+
+// Create outer flex container
+outerFlex := widget.NewFlexWidget().
+    SetDirection(widget.FlexColumn)
+
+// Add the inner flex to the outer flex as a flexed item
+outerFlex.Flexed(innerFlex)
+
+// Set the root widget to render the outer flex
 windowWidget.Root().Render = func(gtx app.Context, w *widget.Widget) {
-    // Draw a 2px black outline around the entire window using Gio's stroke operations
-    thickness := float32(2)
+    // Update the outer flex size to match the window
+    outerFlex.SetSize(w.Width, w.Height)
     
-    // Create rectangle for the outline
-    r := image.Rect(0, 0, w.Width, w.Height)
-    
-    // Draw the outline using Gio's stroke operation
-    paint.FillShape(gtx.Ops,
-        color.NRGBA{R: 0, G: 0, B: 0, A: 255}, // Black outline
-        clip.Stroke{
-            Path:  clip.RRect{Rect: r, NW: 0, NE: 0, SW: 0, SE: 0}.Path(gtx.Ops),
-            Width: thickness,
-        }.Op(),
-    )
+    // Render the outer flex (which will render children)
+    outerFlex.RenderWidget(gtx)
 }
 ```
 
 ## Key Features
 
-- **Gio Stroke Operations**: Uses Gio's native `clip.Stroke` and `clip.RRect` for proper outline drawing
-- **Square Corners**: No rounded corners, just straight rectangular edges
-- **Native Performance**: Leverages Gio's optimized stroke rendering
-- **Window Integration**: Uses the root widget's render function for full window coverage
-- **Thickness Control**: Easy to change outline thickness by modifying the `thickness` variable
-- **Proper API Usage**: Follows Gio's recommended patterns for drawing outlines
+- **Nested Flex Containers**: Demonstrates complex layout with nested flex widgets
+- **Automatic Constraint Sizing**: OutlineWidget automatically sizes to available space
+- **Flex Layout**: Uses column direction for vertical layout
+- **Responsive Design**: Automatically adapts to window size changes
+- **Clean Hierarchy**: Proper widget composition with flex containers
 
 ## Running the Example
 
@@ -58,15 +76,15 @@ go run ./examples/outline/main.go
 ## Visual Result
 
 The example shows:
-- A 2px black outline around the entire window
-- Square corners (no rounding)
-- Clean demonstration of outline drawing
-- No background fill, just the outline
+- Light cyan background filling the outline widget area
+- White border with 16px thickness around the outline widget
+- Outline widget automatically sized to fill the available space
+- Nested flex layout working correctly
 
 ## Use Cases
 
-- **Window Borders**: Adding custom borders around application windows
-- **Debugging**: Visualizing widget boundaries
-- **UI Framing**: Creating frames around content areas
-- **Testing**: Simple test case for outline functionality
-- **Learning**: Understanding how to draw rectangular outlines
+- **Complex Layouts**: Understanding nested flex containers
+- **Automatic Sizing**: Widgets that adapt to available space
+- **Flex Layout**: Building responsive UI layouts
+- **Widget Composition**: Combining multiple widget types
+- **Constraint-Based Layout**: Understanding how widgets size themselves
