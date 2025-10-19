@@ -25,5 +25,4 @@ require (
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.4.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
-	lol.mleku.dev v1.0.3 // indirect
 )
