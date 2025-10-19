@@ -39,6 +39,8 @@ func loop(w *app.Window) error {
 	var hasShownInitialEnter bool
 	var frameCount int
 	var enterLeaveCount int
+	var lastModifiers key.Modifiers
+
 	for {
 		switch e := w.Event().(type) {
 		case app.DestroyEvent:
@@ -64,9 +66,6 @@ func loop(w *app.Window) error {
 			// Focus the window to receive key events (no text input registration)
 			gtx.Source.Execute(key.FocusCmd{Tag: w})
 
-			// Track modifier state from pointer events
-			var lastModifiers key.Modifiers
-
 			// Force an initial mouse enter event if this is the first frame
 			if !hasShownInitialEnter {
 				hasShownInitialEnter = true
@@ -84,9 +83,6 @@ func loop(w *app.Window) error {
 				log.I.F("Moving within the window will only show Move events\n")
 				log.I.F("================================================\n")
 			}
-
-			// Handle window-level mouse enter/exit events first (most important for hover effects)
-			// These events are now handled in the main event loop above
 
 			// Handle other pointer events (moves, clicks, etc.)
 			for {
@@ -122,8 +118,6 @@ func loop(w *app.Window) error {
 						ev.Kind, ev.Buttons, ev.Position.X, ev.Position.Y, ev.Source, ev.Scroll.X, ev.Scroll.Y, ev.Modifiers)
 				}
 			}
-
-			// Handle raw key events - now with fixed filtering that allows modifiers
 
 			// Handle focused key events (should now work with modifiers)
 			for {
