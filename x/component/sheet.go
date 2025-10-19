@@ -32,7 +32,7 @@ func (s Sheet) Layout(gtx layout.Context, th *material.Theme, anim *VisibilityAn
 	revealedWidth := finalOffset + gtx.Constraints.Max.X
 	defer op.Offset(image.Point{X: finalOffset}).Push(gtx.Ops).Pop()
 	// lay out background
-	paintRect(gtx, gtx.Constraints.Max, th.Bg)
+	paintRect(gtx, gtx.Constraints.Max, th.Background())
 
 	// lay out sheet contents
 	dims := widget(gtx)

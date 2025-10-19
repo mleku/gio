@@ -53,9 +53,9 @@ type IconButtonStyle struct {
 func Button(th *Theme, button *widget.Clickable, txt string) ButtonStyle {
 	b := ButtonStyle{
 		Text:         txt,
-		Color:        th.Palette.ContrastFg,
+		Color:        th.OnPrimary(),
 		CornerRadius: 4,
-		Background:   th.Palette.ContrastBg,
+		Background:   th.Primary(),
 		TextSize:     th.TextSize * 14.0 / 16.0,
 		Inset: layout.Inset{
 			Top: 10, Bottom: 10,
@@ -71,15 +71,15 @@ func Button(th *Theme, button *widget.Clickable, txt string) ButtonStyle {
 func ButtonLayout(th *Theme, button *widget.Clickable) ButtonLayoutStyle {
 	return ButtonLayoutStyle{
 		Button:       button,
-		Background:   th.Palette.ContrastBg,
+		Background:   th.Primary(),
 		CornerRadius: 4,
 	}
 }
 
 func IconButton(th *Theme, button *widget.Clickable, icon *widget.Icon, description string) IconButtonStyle {
 	return IconButtonStyle{
-		Background:  th.Palette.ContrastBg,
-		Color:       th.Palette.ContrastFg,
+		Background:  th.Primary(),
+		Color:       th.OnPrimary(),
 		Icon:        icon,
 		Size:        24,
 		Inset:       layout.UniformInset(12),

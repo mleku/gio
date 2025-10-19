@@ -19,7 +19,7 @@ type ProgressCircleStyle struct {
 
 func ProgressCircle(th *Theme, progress float32) ProgressCircleStyle {
 	return ProgressCircleStyle{
-		Color:    th.Palette.ContrastBg,
+		Color:    th.Primary(),
 		Progress: progress,
 	}
 }

@@ -209,7 +209,7 @@ func (ed *Field) Layout(th *material.Theme, gtx layout.Context) layout.Dimension
 	borderColor := color.NRGBA{A: 107}
 	switch {
 	case gtx.Source.Focused(&ed.Editor):
-		borderColor = th.Palette.ContrastBg
+		borderColor = th.Palette().Primary500
 		borderWidth = 2
 	case ed.Invalid:
 		borderColor = color.NRGBA{R: 200, A: 0xFF}

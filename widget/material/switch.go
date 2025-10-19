@@ -31,9 +31,9 @@ func Switch(th *Theme, swtch *widget.Bool, description string) SwitchStyle {
 		Switch:      swtch,
 		Description: description,
 	}
-	sw.Color.Enabled = th.Palette.ContrastBg
-	sw.Color.Disabled = th.Palette.Bg
-	sw.Color.Track = f32color.MulAlpha(th.Palette.Fg, 0x88)
+	sw.Color.Enabled = th.Primary()
+	sw.Color.Disabled = th.Surface()
+	sw.Color.Track = f32color.MulAlpha(th.OnSurface(), 0x88)
 	return sw
 }
 

@@ -27,13 +27,13 @@ type DecorationsStyle struct {
 // Decorations returns the style to decorate a window.
 func Decorations(th *Theme, deco *widget.Decorations, actions system.Action, title string) DecorationsStyle {
 	titleStyle := Body1(th, title)
-	titleStyle.Color = th.Palette.ContrastFg
+	titleStyle.Color = th.OnSurface()
 	return DecorationsStyle{
 		Decorations: deco,
 		Actions:     actions,
 		Title:       titleStyle,
-		Background:  th.Palette.ContrastBg,
-		Foreground:  th.Palette.ContrastFg,
+		Background:  th.Surface(),
+		Foreground:  th.OnSurface(),
 	}
 }
 

@@ -26,8 +26,8 @@ func ProgressBar(th *Theme, progress float32) ProgressBarStyle {
 		Progress:   progress,
 		Height:     unit.Dp(4),
 		Radius:     unit.Dp(2),
-		Color:      th.Palette.ContrastBg,
-		TrackColor: f32color.MulAlpha(th.Palette.Fg, 0x88),
+		Color:      th.Primary(),
+		TrackColor: f32color.MulAlpha(th.OnSurface(), 0x88),
 	}
 }
 

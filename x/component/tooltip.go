@@ -33,7 +33,7 @@ type Tooltip struct {
 // MobileTooltip constructs a tooltip suitable for use on mobile devices.
 func MobileTooltip(th *material.Theme, text string) Tooltip {
 	txt := material.Body1(th, text)
-	txt.Color = th.Bg
+	txt.Color = th.OnSurface()
 	txt.TextSize = 16
 	return Tooltip{
 		Inset: layout.Inset{
@@ -42,7 +42,7 @@ func MobileTooltip(th *material.Theme, text string) Tooltip {
 			Left:   unit.Dp(16),
 			Right:  unit.Dp(16),
 		},
-		Bg:           WithAlpha(th.Fg, 220),
+		Bg:           WithAlpha(th.OnSurface(), 220),
 		CornerRadius: unit.Dp(4),
 		Text:         txt,
 	}
@@ -51,7 +51,7 @@ func MobileTooltip(th *material.Theme, text string) Tooltip {
 // DesktopTooltip constructs a tooltip suitable for use on desktop devices.
 func DesktopTooltip(th *material.Theme, text string) Tooltip {
 	txt := material.Body2(th, text)
-	txt.Color = th.Bg
+	txt.Color = th.OnSurface()
 	txt.TextSize = 12
 	return Tooltip{
 		Inset: layout.Inset{
@@ -60,7 +60,7 @@ func DesktopTooltip(th *material.Theme, text string) Tooltip {
 			Left:   unit.Dp(8),
 			Right:  unit.Dp(8),
 		},
-		Bg:           WithAlpha(th.Fg, 220),
+		Bg:           WithAlpha(th.OnSurface(), 220),
 		CornerRadius: unit.Dp(4),
 		Text:         txt,
 	}

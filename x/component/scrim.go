@@ -30,7 +30,7 @@ func (s *Scrim) Layout(gtx layout.Context, th *material.Theme, anim *VisibilityA
 			revealed := anim.Revealed(gtx)
 			currentAlpha = uint8(float32(s.FinalAlpha) * revealed)
 		}
-		color := th.Fg
+		color := th.OnSurface()
 		color.A = currentAlpha
 		fill := WithAlpha(color, currentAlpha)
 		paintRect(gtx, gtx.Constraints.Max, fill)
@@ -56,7 +56,7 @@ type ScrimStyle struct {
 func NewScrim(th *material.Theme, scrim *ScrimState, alpha uint8) ScrimStyle {
 	return ScrimStyle{
 		ScrimState: scrim,
-		Color:      th.Fg,
+		Color:      th.OnSurface(),
 		FinalAlpha: alpha,
 	}
 }

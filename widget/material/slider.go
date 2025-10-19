@@ -18,7 +18,7 @@ import (
 // Slider is for selecting a value in a range.
 func Slider(th *Theme, float *widget.Float) SliderStyle {
 	return SliderStyle{
-		Color:      th.Palette.ContrastBg,
+		Color:      th.Primary(),
 		Float:      float,
 		FingerSize: th.FingerSize,
 	}

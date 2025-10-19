@@ -91,9 +91,9 @@ func (n *renderNavItem) Layout(gtx layout.Context, th *material.Theme) layout.Di
 
 func (n *renderNavItem) layoutContent(gtx layout.Context, th *material.Theme) layout.Dimensions {
 	gtx.Constraints.Min = gtx.Constraints.Max
-	contentColor := th.Palette.Fg
+	contentColor := th.OnSurface()
 	if n.selected {
-		contentColor = th.Palette.ContrastBg
+		contentColor = th.OnPrimary()
 	}
 	return layout.Inset{
 		Left:  unit.Dp(8),
@@ -127,9 +127,9 @@ func (n *renderNavItem) layoutBackground(gtx layout.Context, th *material.Theme)
 	}
 	var fill color.NRGBA
 	if n.hovering {
-		fill = WithAlpha(th.Palette.Fg, n.AlphaPalette.Hover)
+		fill = WithAlpha(th.OnSurface(), n.AlphaPalette.Hover)
 	} else if n.selected {
-		fill = WithAlpha(th.Palette.ContrastBg, n.AlphaPalette.Selected)
+		fill = WithAlpha(th.Primary(), n.AlphaPalette.Selected)
 	}
 	rr := gtx.Dp(unit.Dp(4))
 	defer clip.RRect{

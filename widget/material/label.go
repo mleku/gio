@@ -113,8 +113,8 @@ func Overline(th *Theme, txt string) LabelStyle {
 func Label(th *Theme, size unit.Sp, txt string) LabelStyle {
 	l := LabelStyle{
 		Text:           txt,
-		Color:          th.Palette.Fg,
-		SelectionColor: f32color.MulAlpha(th.Palette.ContrastBg, 0x60),
+		Color:          th.OnSurface(),
+		SelectionColor: f32color.MulAlpha(th.Primary(), 0x60),
 		TextSize:       size,
 		Shaper:         th.Shaper,
 	}

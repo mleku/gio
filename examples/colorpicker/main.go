@@ -40,6 +40,11 @@ func loop(w *app.Window) error {
 	th.Shaper = text.NewShaper(text.WithCollection(gofont.Collection()))
 	background := white
 	current := color.NRGBA{R: 255, G: 128, B: 75, A: 255}
+
+	// Create variables to hold theme colors that can be modified
+	themeBackground := th.Background()
+	themeForeground := th.OnSurface()
+
 	picker := colorpicker.State{}
 	picker.SetColor(current)
 	muxState := colorpicker.NewMuxState(
@@ -50,11 +55,11 @@ func loop(w *app.Window) error {
 			},
 			{
 				Label: "background",
-				Value: &th.Palette.Bg,
+				Value: &themeBackground,
 			},
 			{
 				Label: "foreground",
-				Value: &th.Palette.Fg,
+				Value: &themeForeground,
 			},
 		}...)
 	background = *muxState.Color()

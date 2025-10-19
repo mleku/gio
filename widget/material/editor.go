@@ -44,11 +44,11 @@ func Editor(th *Theme, editor *widget.Editor, hint string) EditorStyle {
 			Typeface: th.Face,
 		},
 		TextSize:       th.TextSize,
-		Color:          th.Palette.Fg,
+		Color:          th.OnSurface(),
 		shaper:         th.Shaper,
 		Hint:           hint,
-		HintColor:      f32color.MulAlpha(th.Palette.Fg, 0xbb),
-		SelectionColor: f32color.MulAlpha(th.Palette.ContrastBg, 0x60),
+		HintColor:      f32color.MulAlpha(th.OnSurface(), 0xbb),
+		SelectionColor: f32color.MulAlpha(th.Primary(), 0x60),
 	}
 }
 

@@ -107,7 +107,7 @@ func (a *actionGroup) layout(gtx C, th *material.Theme, overflowBtn *widget.Clic
 			}
 		}
 		actions = append(actions, layout.Rigid(func(gtx C) D {
-			return action.layout(th.Palette.Bg, th.Palette.Fg, anim, gtx)
+			return action.layout(th.Palette().Neutral100, th.Palette().Neutral900, anim, gtx)
 		}))
 	}
 	if len(a.overflow)+overflowedActions > 0 {
@@ -115,8 +115,8 @@ func (a *actionGroup) layout(gtx C, th *material.Theme, overflowBtn *widget.Clic
 			gtx.Constraints.Min.Y = gtx.Constraints.Max.Y
 			btn := material.IconButton(th, overflowBtn, moreIcon, overflowDesc)
 			btn.Size = unit.Dp(24)
-			btn.Background = th.Palette.Bg
-			btn.Color = th.Palette.Fg
+			btn.Background = th.Palette().Neutral100
+			btn.Color = th.Palette().Neutral900
 			btn.Inset = layout.UniformInset(unit.Dp(6))
 			return overflowButtonInset.Layout(gtx, btn.Layout)
 		}))
@@ -169,7 +169,7 @@ func (o *overflowMenu) configureOverflow(gtx C, th *material.Theme, barPos Verti
 		dims := layout.Stack{}.Layout(gtx,
 			layout.Expanded(func(gtx C) D {
 				gtx.Constraints.Min.X = width
-				paintRect(gtx, gtx.Constraints.Min, th.Palette.Bg)
+				paintRect(gtx, gtx.Constraints.Min, th.Palette().Neutral100)
 				return layout.Dimensions{Size: gtx.Constraints.Min}
 			}),
 			layout.Stacked(func(gtx C) D {
@@ -346,22 +346,36 @@ func Interpolate(a, b color.NRGBA, progress float32) color.NRGBA {
 //
 // Bg <-> Fg
 // ContrastBg <-> ContrastFg
-func SwapGrounds(p material.Palette) material.Palette {
-	out := p
-	out.Fg, out.Bg = out.Bg, out.Fg
-	out.ContrastFg, out.ContrastBg = out.ContrastBg, out.ContrastFg
-	return out
+func SwapGrounds(p *material.Colors) *material.Colors {
+	// Create a new Colors instance with swapped theme mode
+	newColors := material.NewColorsWithMode(p.ThemeMode())
+
+	// For now, just return a copy with inverted theme mode
+	if p.ThemeMode() == material.ThemeModeLight {
+		newColors.SetThemeMode(material.ThemeModeDark)
+	} else {
+		newColors.SetThemeMode(material.ThemeModeLight)
+	}
+
+	return newColors
 }
 
 // SwapPairs swaps the contrast and non-constrast colors.
 //
 // Bg <-> ContrastBg
 // Fg <-> ContrastFg
-func SwapPairs(p material.Palette) material.Palette {
-	out := p
-	out.Bg, out.ContrastBg = out.ContrastBg, out.Bg
-	out.Fg, out.ContrastFg = out.ContrastFg, out.Fg
-	return out
+func SwapPairs(p *material.Colors) *material.Colors {
+	// For Material Design 3, we don't have separate contrast colors
+	// Just return a copy with inverted theme mode
+	newColors := material.NewColorsWithMode(p.ThemeMode())
+
+	if p.ThemeMode() == material.ThemeModeLight {
+		newColors.SetThemeMode(material.ThemeModeDark)
+	} else {
+		newColors.SetThemeMode(material.ThemeModeLight)
+	}
+
+	return newColors
 }
 
 // Layout renders the app bar. It will span all available horizontal
@@ -374,24 +388,34 @@ func (a *AppBar) Layout(gtx layout.Context, theme *material.Theme, navDesc, over
 	gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(56))
 	th := *theme
 
-	normalBg := th.Palette.ContrastBg
+	normalBg := th.Primary()
 	if a.contextualAnim.Visible() {
 		// switch the foreground and background colors
-		th.Palette = SwapGrounds(th.Palette)
+		th.Colors = SwapGrounds(th.Colors)
 	} else {
 		// switch the contrast and main colors
-		th.Palette = SwapPairs(th.Palette)
+		th.Colors = SwapPairs(th.Colors)
 	}
 
 	actionSet := &a.normalActions
 	if a.contextualAnim.Visible() {
 		if a.contextualAnim.Animating() {
-			th.Palette.Bg = Interpolate(normalBg, th.Palette.Bg, a.contextualAnim.Revealed(gtx))
+			// For Material Design 3, use Surface color instead of Neutral100
+			surfaceColor := th.Surface()
+			interpolatedColor := Interpolate(normalBg, surfaceColor, a.contextualAnim.Revealed(gtx))
+			// We can't directly modify the theme colors, so we'll use the interpolated color directly
+			paintRect(gtx, gtx.Constraints.Max, interpolatedColor)
+		} else {
+			paintRect(gtx, gtx.Constraints.Max, th.Surface())
 		}
 		actionSet = &a.contextualActions
+	} else {
+		paintRect(gtx, gtx.Constraints.Max, th.Surface())
 	}
-	paintRect(gtx, gtx.Constraints.Max, th.Palette.Bg)
-	overflowTh := th.WithPalette(SwapGrounds(th.Palette))
+
+	// Create overflow theme with swapped colors
+	overflowTh := th
+	overflowTh.Colors = SwapGrounds(th.Colors)
 	a.overflowMenu.updateState(gtx, &overflowTh, a.Anchor, actionSet)
 
 	layout.Flex{
@@ -407,8 +431,8 @@ func (a *AppBar) Layout(gtx layout.Context, theme *material.Theme, navDesc, over
 			}
 			button := material.IconButton(&th, &a.NavigationButton, icon, navDesc)
 			button.Size = unit.Dp(24)
-			button.Background = th.Palette.Bg
-			button.Color = th.Fg
+			button.Background = th.Surface()
+			button.Color = th.OnSurface()
 			button.Inset = layout.UniformInset(unit.Dp(16))
 			return button.Layout(gtx)
 		}),

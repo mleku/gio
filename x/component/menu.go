@@ -45,7 +45,7 @@ func (c SurfaceStyle) Layout(gtx C, w layout.Widget) D {
 			surface := clip.UniformRRect(image.Rectangle{Max: gtx.Constraints.Min}, gtx.Dp(c.ShadowStyle.CornerRadius))
 			var fill color.NRGBA
 			if empty := (color.NRGBA{}); c.Fill == empty {
-				fill = c.Theme.Bg
+				fill = c.Theme.Background()
 			} else {
 				fill = c.Fill
 			}
@@ -71,7 +71,7 @@ type DividerStyle struct {
 func Divider(th *material.Theme) DividerStyle {
 	return DividerStyle{
 		Thickness: unit.Dp(1),
-		Fill:      WithAlpha(th.Fg, 0x60),
+		Fill:      WithAlpha(th.OnSurface(), 0x60),
 		Inset: layout.Inset{
 			Top:    unit.Dp(8),
 			Bottom: unit.Dp(8),
@@ -83,7 +83,7 @@ func Divider(th *material.Theme) DividerStyle {
 func SubheadingDivider(th *material.Theme, subheading string) DividerStyle {
 	return DividerStyle{
 		Thickness: unit.Dp(1),
-		Fill:      WithAlpha(th.Fg, 0x60),
+		Fill:      WithAlpha(th.OnSurface(), 0x60),
 		Inset: layout.Inset{
 			Top:    unit.Dp(8),
 			Bottom: unit.Dp(4),
@@ -152,12 +152,12 @@ func MenuItem(th *material.Theme, state *widget.Clickable, label string) MenuIte
 		IconInset: outlay.Inset{
 			Start: unit.Dp(16),
 		},
-		IconColor: th.Fg,
+		IconColor: th.OnSurface(),
 		HintInset: outlay.Inset{
 			End: unit.Dp(16),
 		},
 		Label:      material.Body1(th, label),
-		HoverColor: WithAlpha(th.ContrastBg, 0x30),
+		HoverColor: WithAlpha(th.Primary(), 0x30),
 	}
 }
 
