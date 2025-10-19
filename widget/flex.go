@@ -24,22 +24,22 @@ type FlexItem struct {
 // FlexWidget represents a flex container widget
 type FlexWidget struct {
 	*Widget
-	Direction FlexDirection
-	Items     []FlexItem
+	FlexDirection FlexDirection
+	Items         []FlexItem
 }
 
-// NewFlexWidget creates a new flex widget
-func NewFlexWidget() *FlexWidget {
+// Flex creates a new flex widget
+func Flex() *FlexWidget {
 	return &FlexWidget{
-		Widget:    NewWidget(),
-		Direction: FlexRow,
-		Items:     make([]FlexItem, 0),
+		Widget:        NewWidget(),
+		FlexDirection: FlexRow,
+		Items:         make([]FlexItem, 0),
 	}
 }
 
-// SetDirection sets the flex direction
-func (f *FlexWidget) SetDirection(direction FlexDirection) *FlexWidget {
-	f.Direction = direction
+// Direction sets the flex direction
+func (f *FlexWidget) Direction(direction FlexDirection) *FlexWidget {
+	f.FlexDirection = direction
 	return f
 }
 
@@ -75,7 +75,7 @@ func (f *FlexWidget) Layout() {
 		return
 	}
 
-	if f.Direction == FlexRow {
+	if f.FlexDirection == FlexRow {
 		f.layoutRow()
 	} else {
 		f.layoutColumn()

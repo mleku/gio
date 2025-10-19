@@ -14,36 +14,36 @@ import (
 // OutlineWidget represents a widget that draws an outline around its bounds
 type OutlineWidget struct {
 	*Widget
-	OutlineColor color.NRGBA
-	Thickness    int
-	CornerRadius int
+	outlineColor color.NRGBA
+	thickness    int
+	cornerRadius int
 }
 
 // NewOutlineWidget creates a new outline widget
 func NewOutlineWidget() *OutlineWidget {
 	return &OutlineWidget{
 		Widget:       NewWidget(),
-		OutlineColor: color.NRGBA{R: 0, G: 0, B: 0, A: 255}, // Black outline
-		Thickness:    1,
-		CornerRadius: 0,
+		outlineColor: color.NRGBA{R: 0, G: 0, B: 0, A: 255}, // Black outline
+		thickness:    1,
+		cornerRadius: 0,
 	}
 }
 
-// SetOutlineColor sets the outline color
-func (o *OutlineWidget) SetOutlineColor(color color.NRGBA) *OutlineWidget {
-	o.OutlineColor = color
+// OutlineColor sets the outline color
+func (o *OutlineWidget) OutlineColor(color color.NRGBA) *OutlineWidget {
+	o.outlineColor = color
 	return o
 }
 
-// SetThickness sets the outline thickness
-func (o *OutlineWidget) SetThickness(thickness int) *OutlineWidget {
-	o.Thickness = thickness
+// Thickness sets the outline thickness
+func (o *OutlineWidget) Thickness(thickness int) *OutlineWidget {
+	o.thickness = thickness
 	return o
 }
 
-// SetCornerRadius sets the corner radius for rounded corners
-func (o *OutlineWidget) SetCornerRadius(radius int) *OutlineWidget {
-	o.CornerRadius = radius
+// CornerRadius sets the corner radius for rounded corners
+func (o *OutlineWidget) CornerRadius(radius int) *OutlineWidget {
+	o.cornerRadius = radius
 	return o
 }
 
@@ -64,7 +64,7 @@ func (o *OutlineWidget) RenderWidget(gtx app.Context) {
 	// Call custom render function if provided (for background)
 	if o.Render != nil {
 		// Draw background with inset to leave room for outline
-		inset := o.Thickness
+		inset := o.thickness
 		if inset > 0 {
 			defer clip.Rect{
 				Min: image.Point{X: o.X + inset, Y: o.Y + inset},
@@ -85,14 +85,14 @@ func (o *OutlineWidget) RenderWidget(gtx app.Context) {
 
 // drawOutline draws the outline around the widget bounds
 func (o *OutlineWidget) drawOutline(gtx app.Context) {
-	if o.Thickness <= 0 {
+	if o.thickness <= 0 {
 		return
 	}
 
 	// Create clipping rectangle for the outline
 	bounds := o.Bounds()
 
-	if o.CornerRadius > 0 {
+	if o.cornerRadius > 0 {
 		// Draw rounded rectangle outline
 		o.drawRoundedOutline(gtx, bounds)
 	} else {
@@ -103,8 +103,8 @@ func (o *OutlineWidget) drawOutline(gtx app.Context) {
 
 // drawRectangularOutline draws a rectangular outline using RRect clipping
 func (o *OutlineWidget) drawRectangularOutline(gtx app.Context, bounds image.Rectangle) {
-	thickness := float32(o.Thickness)
-	radius := o.CornerRadius
+	thickness := float32(o.thickness)
+	radius := o.cornerRadius
 
 	// Create outer rectangle for the border
 	outerRect := bounds
@@ -119,7 +119,7 @@ func (o *OutlineWidget) drawRectangularOutline(gtx app.Context, bounds image.Rec
 
 	// First clip: outer RRect with specified radius
 	defer clip.RRect{Rect: outerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
-	paint.Fill(gtx.Ops, o.OutlineColor)
+	paint.Fill(gtx.Ops, o.outlineColor)
 
 	// Second clip: inner RRect with specified radius (creates the hole)
 	defer clip.RRect{Rect: innerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
@@ -134,8 +134,8 @@ func (o *OutlineWidget) drawRectangularOutline(gtx app.Context, bounds image.Rec
 
 // drawRoundedOutline draws a rounded rectangle outline using RRect clipping
 func (o *OutlineWidget) drawRoundedOutline(gtx app.Context, bounds image.Rectangle) {
-	thickness := float32(o.Thickness)
-	radius := o.CornerRadius
+	thickness := float32(o.thickness)
+	radius := o.cornerRadius
 
 	// Create outer rectangle for the border
 	outerRect := bounds
@@ -150,7 +150,7 @@ func (o *OutlineWidget) drawRoundedOutline(gtx app.Context, bounds image.Rectang
 
 	// First clip: outer RRect with specified radius
 	defer clip.RRect{Rect: outerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
-	paint.Fill(gtx.Ops, o.OutlineColor)
+	paint.Fill(gtx.Ops, o.outlineColor)
 
 	// Second clip: inner RRect with specified radius (creates the hole)
 	defer clip.RRect{Rect: innerRect, NW: radius, NE: radius, SW: radius, SE: radius}.Push(gtx.Ops).Pop()
@@ -186,5 +186,11 @@ func (o *OutlineWidget) SetVisible(visible bool) *OutlineWidget {
 // AddChild adds a child widget
 func (o *OutlineWidget) AddChild(child *Widget) *OutlineWidget {
 	o.Widget.AddChild(child)
+	return o
+}
+
+// Background sets a custom background render function
+func (o *OutlineWidget) Background(renderFunc func(gtx app.Context, w *Widget)) *OutlineWidget {
+	o.Render = renderFunc
 	return o
 }
