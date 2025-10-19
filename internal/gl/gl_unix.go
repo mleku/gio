@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build darwin || linux || freebsd || openbsd
-// +build darwin linux freebsd openbsd
+//go:build linux
+// +build linux
 
 package gl
 
 import (
 	"fmt"
 	"runtime"
-	"strings"
 	"unsafe"
 )
 
@@ -656,14 +655,8 @@ func (f *Functions) load(forceES bool) error {
 		handles  []unsafe.Pointer
 	)
 	switch {
-	case runtime.GOOS == "darwin" && !forceES:
-		libNames = []string{"/System/Library/Frameworks/OpenGL.framework/OpenGL"}
-	case runtime.GOOS == "darwin" && forceES:
-		libNames = []string{"libGLESv2.dylib"}
-	case runtime.GOOS == "ios":
-		libNames = []string{"/System/Library/Frameworks/OpenGLES.framework/OpenGLES"}
-	case runtime.GOOS == "android":
-		libNames = []string{"libGLESv2.so", "libGLESv3.so"}
+	case runtime.GOOS == "linux":
+		libNames = []string{"libGLESv2.so.2", "libGLESv2.so.3.0"}
 	default:
 		libNames = []string{"libGLESv2.so.2", "libGLESv2.so.3.0"}
 	}
@@ -1163,21 +1156,8 @@ func (f *Functions) getStringi(pname Enum, index int) string {
 }
 
 func (f *Functions) GetString(pname Enum) string {
-	switch {
-	case runtime.GOOS == "darwin" && pname == EXTENSIONS:
-		// macOS OpenGL 3 core profile doesn't support glGetString(GL_EXTENSIONS).
-		// Use glGetStringi(GL_EXTENSIONS, <index>).
-		var exts []string
-		nexts := f.GetInteger(NUM_EXTENSIONS)
-		for i := 0; i < nexts; i++ {
-			ext := f.getStringi(EXTENSIONS, i)
-			exts = append(exts, ext)
-		}
-		return strings.Join(exts, " ")
-	default:
-		str := C.glGetString(f.glGetString, C.GLenum(pname))
-		return C.GoString((*C.char)(unsafe.Pointer(str)))
-	}
+	str := C.glGetString(f.glGetString, C.GLenum(pname))
+	return C.GoString((*C.char)(unsafe.Pointer(str)))
 }
 
 func (f *Functions) GetUniformBlockIndex(p Program, name string) uint {

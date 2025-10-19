@@ -6,8 +6,8 @@ import (
 	"errors"
 	"syscall/js"
 
-	"gioui.org/gpu"
-	"gioui.org/internal/gl"
+	"github.com/mleku/gio/gpu"
+	"github.com/mleku/gio/internal/gl"
 )
 
 type jsContext struct {

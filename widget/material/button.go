@@ -7,16 +7,16 @@ import (
 	"image/color"
 	"math"
 
-	"gioui.org/font"
-	"gioui.org/internal/f32color"
-	"gioui.org/io/semantic"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/text"
-	"gioui.org/unit"
-	"gioui.org/widget"
+	"github.com/mleku/gio/font"
+	"github.com/mleku/gio/internal/f32color"
+	"github.com/mleku/gio/io/semantic"
+	"github.com/mleku/gio/layout"
+	"github.com/mleku/gio/op"
+	"github.com/mleku/gio/op/clip"
+	"github.com/mleku/gio/op/paint"
+	"github.com/mleku/gio/text"
+	"github.com/mleku/gio/unit"
+	"github.com/mleku/gio/widget"
 )
 
 type ButtonStyle struct {

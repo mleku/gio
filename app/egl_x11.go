@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build ((linux && !android) || freebsd || openbsd) && !nox11 && !noopengl
-// +build linux,!android freebsd openbsd
-// +build !nox11
-// +build !noopengl
+//go:build linux && !nox11 && !noopengl
+// +build linux,!nox11,!noopengl
 
 package app
 
 import (
 	"unsafe"
 
-	"gioui.org/internal/egl"
+	"github.com/mleku/gio/internal/egl"
 )
 
 type x11Context struct {

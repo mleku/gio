@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build !android
-// +build !android
+//go:build linux || js
+// +build linux js
 
 package app
 

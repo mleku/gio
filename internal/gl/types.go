@@ -1,5 +1,5 @@
-//go:build !js
-// +build !js
+//go:build linux
+// +build linux
 
 package gl
 

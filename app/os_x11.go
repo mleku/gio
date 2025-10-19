@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build ((linux && !android) || freebsd || openbsd) && !nox11
-// +build linux,!android freebsd openbsd
-// +build !nox11
+//go:build linux && !nox11
+// +build linux,!nox11
 
 package app
 
@@ -38,18 +37,18 @@ import (
 	"time"
 	"unsafe"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
-	"gioui.org/op"
-	"gioui.org/unit"
+	"github.com/mleku/gio/f32"
+	"github.com/mleku/gio/io/event"
+	"github.com/mleku/gio/io/key"
+	"github.com/mleku/gio/io/pointer"
+	"github.com/mleku/gio/io/system"
+	"github.com/mleku/gio/io/transfer"
+	"github.com/mleku/gio/op"
+	"github.com/mleku/gio/unit"
 
 	syscall "golang.org/x/sys/unix"
 
-	"gioui.org/app/internal/xkb"
+	"github.com/mleku/gio/app/internal/xkb"
 )
 
 const (
@@ -122,7 +121,7 @@ var (
 )
 
 // X11 and Vulkan doesn't work reliably on NVIDIA systems.
-// See https://gioui.org/issue/347.
+// See https://github.com/mleku/gio/issue/347.
 const vulkanBuggy = true
 
 func (w *x11Window) NewContext() (context, error) {

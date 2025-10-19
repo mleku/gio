@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build ((linux && !android) || freebsd) && !nox11 && !novulkan
-// +build linux,!android freebsd
-// +build !nox11
-// +build !novulkan
+//go:build linux && !nox11 && !novulkan
+// +build linux,!nox11,!novulkan
 
 package app
 
 import (
 	"unsafe"
 
-	"gioui.org/gpu"
-	"gioui.org/internal/vk"
+	"github.com/mleku/gio/gpu"
+	"github.com/mleku/gio/internal/vk"
 )
 
 type x11VkContext struct {

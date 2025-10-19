@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build linux || freebsd
-// +build linux freebsd
+//go:build linux
+// +build linux
 
 package vk
 

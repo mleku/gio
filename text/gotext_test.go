@@ -13,9 +13,9 @@ import (
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/math/fixed"
 
-	giofont "gioui.org/font"
-	"gioui.org/font/opentype"
-	"gioui.org/io/system"
+	giofont "github.com/mleku/gio/font"
+	"github.com/mleku/gio/font/opentype"
+	"github.com/mleku/gio/io/system"
 )
 
 var english = system.Locale{

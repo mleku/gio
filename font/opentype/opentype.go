@@ -15,7 +15,7 @@ import (
 	"fmt"
 	_ "image/png"
 
-	giofont "gioui.org/font"
+	giofont "github.com/mleku/gio/font"
 	fontapi "github.com/go-text/typesetting/font"
 	"github.com/go-text/typesetting/font/opentype"
 )

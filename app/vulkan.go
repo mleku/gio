@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build (linux || freebsd) && !novulkan
-// +build linux freebsd
-// +build !novulkan
+//go:build linux && !novulkan
+// +build linux,!novulkan
 
 package app
 
@@ -10,8 +9,8 @@ import (
 	"errors"
 	"unsafe"
 
-	"gioui.org/gpu"
-	"gioui.org/internal/vk"
+	"github.com/mleku/gio/gpu"
+	"github.com/mleku/gio/internal/vk"
 )
 
 type vkContext struct {
@@ -115,7 +114,7 @@ func mapSurfaceErr(err error) error {
 	}
 	switch {
 	case vkErr == vk.SUBOPTIMAL_KHR:
-		// Android reports VK_SUBOPTIMAL_KHR when presenting to a rotated
+		// Some platforms report VK_SUBOPTIMAL_KHR when presenting to a rotated
 		// swapchain (preTransform != currentTransform). However, we don't
 		// support transforming the output ourselves, so we'll live with it.
 		return nil

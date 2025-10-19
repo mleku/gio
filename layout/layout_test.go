@@ -6,7 +6,7 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/op"
+	"github.com/mleku/gio/op"
 )
 
 func TestStack(t *testing.T) {

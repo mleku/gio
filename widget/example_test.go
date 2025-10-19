@@ -8,15 +8,15 @@ import (
 	"io"
 	"strings"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/pointer"
-	"gioui.org/io/transfer"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/widget"
+	"github.com/mleku/gio/f32"
+	"github.com/mleku/gio/io/event"
+	"github.com/mleku/gio/io/input"
+	"github.com/mleku/gio/io/pointer"
+	"github.com/mleku/gio/io/transfer"
+	"github.com/mleku/gio/layout"
+	"github.com/mleku/gio/op"
+	"github.com/mleku/gio/op/clip"
+	"github.com/mleku/gio/widget"
 )
 
 func ExampleClickable_passthrough() {

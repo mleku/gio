@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build (linux || freebsd) && !novulkan
-// +build linux freebsd
-// +build !novulkan
+//go:build linux && !novulkan
+// +build linux,!novulkan
 
 package vulkan
 
@@ -12,8 +11,8 @@ import (
 	"image"
 	"math/bits"
 
-	"gioui.org/gpu/internal/driver"
-	"gioui.org/internal/vk"
+	"github.com/mleku/gio/gpu/internal/driver"
+	"github.com/mleku/gio/internal/vk"
 	"gioui.org/shader"
 )
 

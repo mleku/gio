@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build android || (darwin && ios)
-// +build android darwin,ios
+//go:build js
+// +build js
 
 package app
 
-// Android only supports non-Java programs as c-shared libraries.
+// JS/WASM only supports non-Java programs as c-shared libraries.
 // Unfortunately, Go does not run a program's main function in
 // library mode. To make Gio programs simpler and uniform, we'll
 // link to the main function here and call it from Java.

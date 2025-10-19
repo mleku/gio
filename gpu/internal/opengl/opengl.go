@@ -13,8 +13,8 @@ import (
 	"time"
 	"unsafe"
 
-	"gioui.org/gpu/internal/driver"
-	"gioui.org/internal/gl"
+	"github.com/mleku/gio/gpu/internal/driver"
+	"github.com/mleku/gio/internal/gl"
 	"gioui.org/shader"
 )
 

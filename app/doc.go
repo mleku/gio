@@ -4,14 +4,13 @@
 Package app provides a platform-independent interface to operating system
 functionality for running graphical user interfaces.
 
-See https://gioui.org for instructions to set up and run Gio programs.
+See https://github.com/mleku/gio for instructions to set up and run Gio programs.
 
-# Windows
+# Window Management
 
 A Window is run by calling its Event method in a loop. The first time a
-method on Window is called, a new GUI window is created and shown. On mobile
-platforms or when Gio is embedded in another project, Window merely connects
-with a previously created GUI window.
+method on Window is called, a new GUI window is created and shown. On JS/WASM
+platforms, Window merely connects with a previously created GUI window.
 
 The most important event is [FrameEvent] that prompts an update of the window
 contents.
@@ -38,13 +37,13 @@ A program must keep receiving events from the event channel until
 The Main function must be called from a program's main function, to hand over
 control of the main thread to operating systems that need it.
 
-Because Main is also blocking on some platforms, the event loop of a Window must run in a goroutine.
+Because Main is also blocking on Linux/X11, the event loop of a Window must run in a goroutine.
 
 For example, to display a blank but otherwise functional window:
 
 	package main
 
-	import "gioui.org/app"
+	import "github.com/mleku/gio/app"
 
 	func main() {
 		go func() {
@@ -58,9 +57,12 @@ For example, to display a blank but otherwise functional window:
 
 # Permissions
 
-The packages under gioui.org/app/permission should be imported
+The packages under github.com/mleku/gio/app/permission should be imported
 by a Gio program or by one of its dependencies to indicate that specific
 operating-system permissions are required.  Please see documentation for
-package gioui.org/app/permission for more information.
+package github.com/mleku/gio/app/permission for more information.
+
+Note: Permission packages are primarily for mobile platforms and may not be
+applicable to Linux/X11 or JS/WASM platforms.
 */
 package app

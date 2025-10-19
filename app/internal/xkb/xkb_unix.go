@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build (linux && !android) || freebsd || openbsd
-// +build linux,!android freebsd openbsd
+//go:build linux
+// +build linux
 
 // Package xkb implements a Go interface for the X Keyboard Extension library.
 package xkb
@@ -15,8 +15,8 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
-	"gioui.org/io/event"
-	"gioui.org/io/key"
+	"github.com/mleku/gio/io/event"
+	"github.com/mleku/gio/io/key"
 )
 
 /*

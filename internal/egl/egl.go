@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build linux || windows || freebsd || openbsd
-// +build linux windows freebsd openbsd
+//go:build linux
+// +build linux
 
 package egl
 
@@ -12,7 +12,7 @@ import (
 	"slices"
 	"strings"
 
-	"gioui.org/gpu"
+	"github.com/mleku/gio/gpu"
 )
 
 type Context struct {

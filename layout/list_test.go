@@ -6,11 +6,11 @@ import (
 	"image"
 	"testing"
 
-	"gioui.org/f32"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/pointer"
-	"gioui.org/op"
+	"github.com/mleku/gio/f32"
+	"github.com/mleku/gio/io/event"
+	"github.com/mleku/gio/io/input"
+	"github.com/mleku/gio/io/pointer"
+	"github.com/mleku/gio/op"
 )
 
 func TestListPositionExtremes(t *testing.T) {

@@ -5,11 +5,11 @@ package widget
 import (
 	"image"
 
-	"gioui.org/gesture"
-	"gioui.org/io/pointer"
-	"gioui.org/layout"
-	"gioui.org/op/clip"
-	"gioui.org/unit"
+	"github.com/mleku/gio/gesture"
+	"github.com/mleku/gio/io/pointer"
+	"github.com/mleku/gio/layout"
+	"github.com/mleku/gio/op/clip"
+	"github.com/mleku/gio/unit"
 )
 
 // Float is for selecting a value in a range.

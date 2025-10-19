@@ -7,10 +7,10 @@ import (
 	"testing"
 
 	nsareg "eliasnaur.com/font/noto/sans/arabic/regular"
-	"gioui.org/font"
-	"gioui.org/font/gofont"
-	"gioui.org/font/opentype"
-	"gioui.org/io/system"
+	"github.com/mleku/gio/font"
+	"github.com/mleku/gio/font/gofont"
+	"github.com/mleku/gio/font/opentype"
+	"github.com/mleku/gio/io/system"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/math/fixed"
 )

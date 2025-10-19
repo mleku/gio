@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build (linux && !android) || freebsd || openbsd
-// +build linux,!android freebsd openbsd
+//go:build linux
+// +build linux
 
 package app
 
@@ -9,7 +9,7 @@ import (
 	"errors"
 	"unsafe"
 
-	"gioui.org/io/pointer"
+	"github.com/mleku/gio/io/pointer"
 )
 
 type X11ViewEvent struct {
@@ -25,19 +25,6 @@ func (x X11ViewEvent) Valid() bool {
 	return x != (X11ViewEvent{})
 }
 
-type WaylandViewEvent struct {
-	// Display is the *wl_display returned by wl_display_connect.
-	Display unsafe.Pointer
-	// Surface is the *wl_surface returned by wl_compositor_create_surface.
-	Surface unsafe.Pointer
-}
-
-func (WaylandViewEvent) implementsViewEvent() {}
-func (WaylandViewEvent) ImplementsEvent()     {}
-func (w WaylandViewEvent) Valid() bool {
-	return w != (WaylandViewEvent{})
-}
-
 func osMain() {
 	select {}
 }
@@ -46,21 +33,16 @@ type windowDriver func(*callbacks, []Option) error
 
 // Instead of creating files with build tags for each combination of wayland +/- x11
 // let each driver initialize these variables with their own version of createWindow.
-var wlDriver, x11Driver windowDriver
+var x11Driver windowDriver
 
 func newWindow(window *callbacks, options []Option) {
 	var errFirst error
-	for _, d := range []windowDriver{wlDriver, x11Driver} {
-		if d == nil {
-			continue
-		}
+	if d := x11Driver; d != nil {
 		err := d(window, options)
 		if err == nil {
 			return
 		}
-		if errFirst == nil {
-			errFirst = err
-		}
+		errFirst = err
 	}
 	if errFirst == nil {
 		errFirst = errors.New("app: no window driver available")

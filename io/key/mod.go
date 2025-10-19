@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build !darwin
-// +build !darwin
+//go:build linux || js
+// +build linux js
 
 package key
 

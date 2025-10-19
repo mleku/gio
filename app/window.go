@@ -12,22 +12,22 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"gioui.org/f32"
-	"gioui.org/font/gofont"
-	"gioui.org/gpu"
-	"gioui.org/internal/debug"
-	"gioui.org/internal/ops"
-	"gioui.org/io/event"
-	"gioui.org/io/input"
-	"gioui.org/io/key"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/text"
-	"gioui.org/unit"
-	"gioui.org/widget"
-	"gioui.org/widget/material"
+	"github.com/mleku/gio/f32"
+	"github.com/mleku/gio/font/gofont"
+	"github.com/mleku/gio/gpu"
+	"github.com/mleku/gio/internal/debug"
+	"github.com/mleku/gio/internal/ops"
+	"github.com/mleku/gio/io/event"
+	"github.com/mleku/gio/io/input"
+	"github.com/mleku/gio/io/key"
+	"github.com/mleku/gio/io/pointer"
+	"github.com/mleku/gio/io/system"
+	"github.com/mleku/gio/layout"
+	"github.com/mleku/gio/op"
+	"github.com/mleku/gio/text"
+	"github.com/mleku/gio/unit"
+	"github.com/mleku/gio/widget"
+	"github.com/mleku/gio/widget/material"
 )
 
 // Option configures a window.
@@ -36,10 +36,10 @@ type Option func(unit.Metric, *Config)
 // Window represents an operating system window.
 //
 // The zero-value Window is useful; the GUI window is created and shown the first
-// time the [Event] method is called. On iOS or Android, the first Window represents
+// time the [Event] method is called. On JS/WASM, the first Window represents
 // the window previously created by the platform.
 //
-// More than one Window is not supported on iOS, Android, WebAssembly.
+// More than one Window is not supported on JS/WASM.
 type Window struct {
 	initialOpts    []Option
 	initialActions []system.Action
@@ -679,7 +679,7 @@ func (w *Window) processEvent(e event.Event) bool {
 	case event.Event:
 		focusDir := key.FocusDirection(-1)
 		if e, ok := e2.(key.Event); ok && e.State == key.Press {
-			isMobile := runtime.GOOS == "ios" || runtime.GOOS == "android"
+			isMobile := runtime.GOOS == "js"
 			switch {
 			case e.Name == key.NameTab && e.Modifiers == 0:
 				focusDir = key.FocusForward
@@ -934,14 +934,14 @@ func MinSize(w, h unit.Dp) Option {
 	}
 }
 
-// StatusColor sets the color of the Android status bar.
+// StatusColor sets the color of the status bar (unused on Linux/X11).
 func StatusColor(color color.NRGBA) Option {
 	return func(_ unit.Metric, cnf *Config) {
 		cnf.StatusColor = color
 	}
 }
 
-// NavigationColor sets the color of the navigation bar on Android, or the address bar in browsers.
+// NavigationColor sets the color of the address bar in browsers.
 func NavigationColor(color color.NRGBA) Option {
 	return func(_ unit.Metric, cnf *Config) {
 		cnf.NavigationColor = color

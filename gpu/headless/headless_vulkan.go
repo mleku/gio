@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build (linux || freebsd) && !novulkan
-// +build linux freebsd
-// +build !novulkan
+//go:build linux && !novulkan
+// +build linux,!novulkan
 
 package headless
 
 import (
 	"unsafe"
 
-	"gioui.org/gpu"
-	"gioui.org/internal/vk"
+	"github.com/mleku/gio/gpu"
+	"github.com/mleku/gio/internal/vk"
 )
 
 type vkContext struct {

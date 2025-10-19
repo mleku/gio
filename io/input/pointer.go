@@ -7,14 +7,14 @@ import (
 	"io"
 	"slices"
 
-	"gioui.org/f32"
-	f32internal "gioui.org/internal/f32"
-	"gioui.org/internal/ops"
-	"gioui.org/io/event"
-	"gioui.org/io/pointer"
-	"gioui.org/io/semantic"
-	"gioui.org/io/system"
-	"gioui.org/io/transfer"
+	"github.com/mleku/gio/f32"
+	f32internal "github.com/mleku/gio/internal/f32"
+	"github.com/mleku/gio/internal/ops"
+	"github.com/mleku/gio/io/event"
+	"github.com/mleku/gio/io/pointer"
+	"github.com/mleku/gio/io/semantic"
+	"github.com/mleku/gio/io/system"
+	"github.com/mleku/gio/io/transfer"
 )
 
 type pointerQueue struct {

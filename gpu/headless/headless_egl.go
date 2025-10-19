@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-//go:build linux || freebsd || openbsd
-// +build linux freebsd openbsd
+//go:build linux
+// +build linux
 
 package headless
 
 import (
-	"gioui.org/internal/egl"
+	"github.com/mleku/gio/internal/egl"
 )
 
 func init() {

@@ -8,15 +8,15 @@ import (
 	"math"
 	"testing"
 
-	"gioui.org/f32"
-	"gioui.org/font/gofont"
-	"gioui.org/gpu/headless"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/text"
-	"gioui.org/widget/material"
+	"github.com/mleku/gio/f32"
+	"github.com/mleku/gio/font/gofont"
+	"github.com/mleku/gio/gpu/headless"
+	"github.com/mleku/gio/layout"
+	"github.com/mleku/gio/op"
+	"github.com/mleku/gio/op/clip"
+	"github.com/mleku/gio/op/paint"
+	"github.com/mleku/gio/text"
+	"github.com/mleku/gio/widget/material"
 )
 
 // use some global variables for benchmarking so as to not pollute

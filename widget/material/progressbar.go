@@ -6,11 +6,11 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/internal/f32color"
-	"gioui.org/layout"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
-	"gioui.org/unit"
+	"github.com/mleku/gio/internal/f32color"
+	"github.com/mleku/gio/layout"
+	"github.com/mleku/gio/op/clip"
+	"github.com/mleku/gio/op/paint"
+	"github.com/mleku/gio/unit"
 )
 
 type ProgressBarStyle struct {

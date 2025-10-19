@@ -9,10 +9,10 @@ import (
 	"image/draw"
 	"math"
 
-	"gioui.org/f32"
-	"gioui.org/internal/ops"
-	"gioui.org/op"
-	"gioui.org/op/clip"
+	"github.com/mleku/gio/f32"
+	"github.com/mleku/gio/internal/ops"
+	"github.com/mleku/gio/op"
+	"github.com/mleku/gio/op/clip"
 )
 
 // ImageFilter is the scaling filter for images.

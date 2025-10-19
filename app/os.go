@@ -7,14 +7,14 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/io/event"
-	"gioui.org/io/key"
-	"gioui.org/op"
+	"github.com/mleku/gio/io/event"
+	"github.com/mleku/gio/io/key"
+	"github.com/mleku/gio/op"
 
-	"gioui.org/gpu"
-	"gioui.org/io/pointer"
-	"gioui.org/io/system"
-	"gioui.org/unit"
+	"github.com/mleku/gio/gpu"
+	"github.com/mleku/gio/io/pointer"
+	"github.com/mleku/gio/io/system"
+	"github.com/mleku/gio/unit"
 )
 
 // errOutOfDate is reported when the GPU surface dimensions or properties no
@@ -33,10 +33,9 @@ type Config struct {
 	Title string
 	// WindowMode is the window mode.
 	Mode WindowMode
-	// StatusColor is the color of the Android status bar.
+	// StatusColor is the color of the status bar (unused on Linux/X11).
 	StatusColor color.NRGBA
-	// NavigationColor is the color of the navigation bar
-	// on Android, or the address bar in browsers.
+	// NavigationColor is the color of the address bar in browsers.
 	NavigationColor color.NRGBA
 	// Orientation is the current window orientation.
 	Orientation Orientation
@@ -47,8 +46,8 @@ type Config struct {
 	Decorated bool
 	// Focused reports whether has the keyboard focus.
 	Focused bool
-	// decoHeight is the height of the fallback decoration for platforms such
-	// as Wayland that may need fallback client-side decorations.
+	// decoHeight is the height of the fallback decoration for platforms that
+	// may need fallback client-side decorations.
 	decoHeight unit.Dp
 }
 
@@ -105,7 +104,7 @@ func (m WindowMode) String() string {
 
 // Orientation is the orientation of the app (Orientation.Option sets it).
 //
-// Supported platforms are Android and JS.
+// Supported platforms are JS/WASM.
 type Orientation uint8
 
 const (
