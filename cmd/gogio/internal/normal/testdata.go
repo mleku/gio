@@ -4,21 +4,22 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
-	"log"
+	"os"
 
 	"gio.mleku.dev/app"
 	"gio.mleku.dev/io/pointer"
 	"gio.mleku.dev/op"
 	"gio.mleku.dev/op/paint"
+	"lol.mleku.dev/log"
 )
 
 func main() {
 	go func() {
 		w := new(app.Window)
 		if err := loop(w); err != nil {
-			log.Fatal(err)
+			log.F.Ln(err)
+			os.Exit(1)
 		}
 	}()
 	app.Main()
@@ -39,7 +40,7 @@ func loop(w *app.Window) error {
 			e.Frame(gtx.Ops)
 		case pointer.Event:
 			// Log mouse events
-			fmt.Printf("lol.mleku.dev: Mouse event: %+v\n", e)
+			log.I.F("Mouse event: %+v\n", e)
 		}
 	}
 }

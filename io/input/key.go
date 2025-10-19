@@ -270,8 +270,11 @@ func keyFilterMatch(focus event.Tag, f key.Filter, e key.Event, system bool) boo
 	if e.Modifiers&f.Required != f.Required {
 		return false
 	}
-	if e.Modifiers&^(f.Required|f.Optional) != 0 {
-		return false
+	// Allow any modifiers if Optional is not specified, or if they match Optional
+	if f.Optional != 0 {
+		if e.Modifiers&^(f.Required|f.Optional) != 0 {
+			return false
+		}
 	}
 	return true
 }

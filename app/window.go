@@ -4,7 +4,6 @@ package app
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	"image/color"
 	"runtime"
@@ -23,6 +22,7 @@ import (
 	"gio.mleku.dev/io/system"
 	"gio.mleku.dev/op"
 	"gio.mleku.dev/unit"
+	"lol.mleku.dev/log"
 )
 
 // Option configures a window.
@@ -109,6 +109,7 @@ type eventSummary struct {
 	frame        *frameEvent
 	framePending bool
 	destroy      *DestroyEvent
+	windowMouse  *WindowMouseEvent
 }
 
 type callbacks struct {
@@ -240,14 +241,14 @@ func (w *Window) updateState() {
 		w.driver.WriteClipboard(mime, txt)
 	}
 	if txt, ok := q.WritePrimaryClipboard(); ok {
-		fmt.Printf("📤 APP: Writing to primary clipboard: %q\n", txt)
+		log.I.F("📤 APP: Writing to primary clipboard: %q\n", txt)
 		w.driver.WritePrimaryClipboard(txt)
 	}
 	if q.ClipboardRequested() {
 		w.driver.ReadClipboard()
 	}
 	if q.PrimaryClipboardRequested() {
-		fmt.Println("📥 APP: Reading from primary clipboard")
+		log.I.Ln("📥 APP: Reading from primary clipboard")
 		w.driver.ReadPrimaryClipboard()
 	}
 	oldState := w.imeState
@@ -574,6 +575,10 @@ func (w *Window) nextEvent() (event.Event, bool) {
 		e := *s.cfg
 		s.cfg = nil
 		return e, true
+	case s.windowMouse != nil:
+		e := *s.windowMouse
+		s.windowMouse = nil
+		return e, true
 	case s.frame != nil:
 		e := *s.frame
 		s.frame = nil
@@ -663,35 +668,14 @@ func (w *Window) processEvent(e event.Event) bool {
 			w.updateAnimation()
 		}
 		return handled
+	case WindowMouseEvent:
+		// Window-level mouse enter/leave events are handled directly by the application
+		// They don't need to go through the input queue
+		w.coalesced.windowMouse = &e2
 	case event.Event:
-		focusDir := key.FocusDirection(-1)
-		if e, ok := e2.(key.Event); ok && e.State == key.Press {
-			isMobile := runtime.GOOS == "ios" || runtime.GOOS == "android"
-			switch {
-			case e.Name == key.NameTab && e.Modifiers == 0:
-				focusDir = key.FocusForward
-			case e.Name == key.NameTab && e.Modifiers == key.ModShift:
-				focusDir = key.FocusBackward
-			case e.Name == key.NameUpArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusUp
-			case e.Name == key.NameDownArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusDown
-			case e.Name == key.NameLeftArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusLeft
-			case e.Name == key.NameRightArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusRight
-			}
-		}
-		e := e2
-		if focusDir != -1 {
-			e = input.SystemEvent{Event: e}
-		}
-		w.queue.Queue(e)
+		// Skip focus navigation processing - just pass through raw events
+		w.queue.Queue(e2)
 		t, handled := w.queue.WakeupTime()
-		if focusDir != -1 && !handled {
-			w.moveFocus(focusDir)
-			t, handled = w.queue.WakeupTime()
-		}
 		w.updateCursor()
 		if handled {
 			w.setNextFrame(t)
@@ -904,6 +888,24 @@ func Decorated(enabled bool) Option {
 type flushEvent struct{}
 
 func (t flushEvent) ImplementsEvent() {}
+
+// WindowMouseEvent represents a window-level mouse enter/leave event.
+type WindowMouseEvent struct {
+	Kind      WindowMouseKind
+	Position  f32.Point
+	Time      time.Duration
+	Modifiers key.Modifiers
+}
+
+// WindowMouseKind represents the type of window-level mouse event.
+type WindowMouseKind int
+
+const (
+	WindowMouseEnter WindowMouseKind = iota
+	WindowMouseLeave
+)
+
+func (WindowMouseEvent) ImplementsEvent() {}
 
 // theFlushEvent avoids allocating garbage when sending
 // flushEvents.

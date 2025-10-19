@@ -38,6 +38,8 @@ import (
 #define MOUSE_UP 2
 #define MOUSE_DOWN 3
 #define MOUSE_SCROLL 4
+#define MOUSE_ENTER 5
+#define MOUSE_EXIT 6
 
 __attribute__ ((visibility ("hidden"))) void gio_main(void);
 __attribute__ ((visibility ("hidden"))) void gio_init(void);
@@ -590,23 +592,20 @@ func gio_onKeys(h C.uintptr_t, event C.CFTypeRef, cstr C.CFTypeRef, ti C.double,
 	ks := key.Release
 	if keyDown {
 		ks = key.Press
-		w.cmdKeys.eventStr = str
-		w.cmdKeys.eventMods = kmods
-		C.interpretKeyEvents(w.view, event)
 	}
+
+	// Skip command key processing and text interpretation
 	for _, k := range str {
 		if n, ok := convertKey(k); ok {
 			ke := key.Event{
 				Name:      n,
 				Modifiers: kmods,
 				State:     ks,
+				KeyCode:   0,                   // macOS doesn't provide raw keycode in this callback
+				Timestamp: int64(ti * 1000000), // Convert to nanoseconds
 			}
 			if keyDown {
 				w.keysDown[ke.Name] = struct{}{}
-				if _, isCmd := convertCommandKey(k); isCmd || kmods.Contain(key.ModCommand) {
-					// doCommandBySelector already processed the event.
-					return
-				}
 			} else {
 				if _, pressed := w.keysDown[n]; !pressed {
 					continue
@@ -711,6 +710,22 @@ func gio_onMouse(h C.uintptr_t, evt C.CFTypeRef, cdir C.int, cbtn C.NSInteger, x
 		}
 	case C.MOUSE_SCROLL:
 		typ = pointer.Scroll
+	case C.MOUSE_ENTER:
+		w.ProcessEvent(WindowMouseEvent{
+			Kind:      WindowMouseEnter,
+			Position:  pos,
+			Time:      t,
+			Modifiers: convertMods(mods),
+		})
+		return
+	case C.MOUSE_EXIT:
+		w.ProcessEvent(WindowMouseEvent{
+			Kind:      WindowMouseLeave,
+			Position:  pos,
+			Time:      t,
+			Modifiers: convertMods(mods),
+		})
+		return
 	default:
 		panic("invalid direction")
 	}

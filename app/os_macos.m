@@ -78,6 +78,18 @@ static void handleMouse(GioView *view, NSEvent *event, int typ, CGFloat dx, CGFl
 - (void)setFrameSize:(NSSize)newSize {
 	[super setFrameSize:newSize];
 	[self setNeedsDisplay:YES];
+	// Update tracking area
+	for (NSTrackingArea *area in self.trackingAreas) {
+		[self removeTrackingArea:area];
+	}
+	if (self.window != nil) {
+		NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow;
+		NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds
+																	options:options
+																	  owner:self
+																   userInfo:nil];
+		[self addTrackingArea:trackingArea];
+	}
 }
 // drawRect is called when OpenGL is used, displayLayer otherwise.
 // Don't know why.
@@ -95,6 +107,15 @@ static void handleMouse(GioView *view, NSEvent *event, int typ, CGFloat dx, CGFl
 }
 - (void)viewDidMoveToWindow {
 	gio_onAttached(self.handle, self.window != nil ? 1 : 0);
+	if (self.window != nil) {
+		// Enable mouse tracking
+		NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow;
+		NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds
+																	options:options
+																	  owner:self
+																   userInfo:nil];
+		[self addTrackingArea:trackingArea];
+	}
 }
 - (void)mouseDown:(NSEvent *)event {
 	handleMouse(self, event, MOUSE_DOWN, 0, 0);
@@ -130,6 +151,12 @@ static void handleMouse(GioView *view, NSEvent *event, int typ, CGFloat dx, CGFl
 	CGFloat dx = -event.scrollingDeltaX;
 	CGFloat dy = -event.scrollingDeltaY;
 	handleMouse(self, event, MOUSE_SCROLL, dx, dy);
+}
+- (void)mouseEntered:(NSEvent *)event {
+	handleMouse(self, event, MOUSE_ENTER, 0, 0);
+}
+- (void)mouseExited:(NSEvent *)event {
+	handleMouse(self, event, MOUSE_EXIT, 0, 0);
 }
 - (void)keyDown:(NSEvent *)event {
 	NSString *keys = [event charactersIgnoringModifiers];

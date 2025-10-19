@@ -8,7 +8,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"os"
@@ -134,7 +133,7 @@ func loop(w *app.Window) error {
 			e.Frame(gtx.Ops)
 		case pointer.Event:
 			// Log mouse events
-			fmt.Printf("lol.mleku.dev: Mouse event: %+v\n", e)
+			log.Printf("Mouse event: %+v\n", e)
 		}
 	}
 }

@@ -14,6 +14,7 @@ import (
 	"gio.mleku.dev/io/semantic"
 	"gio.mleku.dev/op"
 	"gio.mleku.dev/op/clip"
+	"lol.mleku.dev/log"
 )
 
 func TestEmptySemantics(t *testing.T) {
@@ -65,9 +66,9 @@ func TestSemanticTree(t *testing.T) {
 	r.Frame(&ops)
 	tree2 := r.AppendSemantics(nil)
 	if !reflect.DeepEqual(tree, tree2) {
-		fmt.Println("First tree:")
+		log.I.Ln("First tree:")
 		printTree(0, tree[0])
-		fmt.Println("Second tree:")
+		log.I.Ln("Second tree:")
 		printTree(0, tree2[0])
 		t.Error("same semantic description lead to differing trees")
 	}
@@ -97,7 +98,6 @@ func TestSemanticDescription(t *testing.T) {
 		Label:       "label",
 		Selected:    true,
 		Disabled:    true,
-		Gestures:    ClickGesture,
 		Bounds:      image.Rectangle{Min: image.Point{X: -1e+06, Y: -1e+06}, Max: image.Point{X: 1e+06, Y: 1e+06}},
 	}
 	if got != exp {
@@ -128,7 +128,7 @@ func printTree(indent int, n SemanticNode) {
 	for range indent {
 		fmt.Print("\t")
 	}
-	fmt.Printf("%d: %+v\n", n.ID, n.Desc)
+	log.I.F("%d: %+v\n", n.ID, n.Desc)
 	for _, c := range n.Children {
 		printTree(indent+1, c)
 	}

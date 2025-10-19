@@ -18,6 +18,7 @@ import (
 
 	"golang.org/x/image/draw"
 	"golang.org/x/sync/errgroup"
+	"lol.mleku.dev/log"
 )
 
 var (
@@ -113,7 +114,7 @@ func build(bi *buildInfo) error {
 
 func runCmdRaw(cmd *exec.Cmd) ([]byte, error) {
 	if *printCommands {
-		fmt.Printf("%s\n", strings.Join(cmd.Args, " "))
+		log.I.F("%s\n", strings.Join(cmd.Args, " "))
 	}
 	out, err := cmd.Output()
 	if err == nil {

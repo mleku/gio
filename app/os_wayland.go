@@ -837,18 +837,25 @@ func gio_onTouchCancel(data unsafe.Pointer, touch *C.struct_wl_touch) {
 }
 
 //export gio_onPointerEnter
-func gio_onPointerEnter(data unsafe.Pointer, pointer *C.struct_wl_pointer, serial C.uint32_t, surf *C.struct_wl_surface, x, y C.wl_fixed_t) {
+func gio_onPointerEnter(data unsafe.Pointer, wlPointer *C.struct_wl_pointer, serial C.uint32_t, surf *C.struct_wl_surface, x, y C.wl_fixed_t) {
 	s := callbackLoad(data).(*wlSeat)
 	s.serial = serial
 	s.pointerSerial = serial
 	w := callbackLoad(unsafe.Pointer(surf)).(*window)
 	s.pointerFocus = w
-	w.setCursor(pointer, serial)
+	w.setCursor(wlPointer, serial)
 	w.lastPos = f32.Point{X: fromFixed(x), Y: fromFixed(y)}
+	// Generate pointer enter event
+	w.ProcessEvent(WindowMouseEvent{
+		Kind:      WindowMouseEnter,
+		Position:  w.lastPos,
+		Time:      time.Duration(serial) * time.Millisecond,
+		Modifiers: w.disp.xkb.Modifiers(),
+	})
 }
 
 //export gio_onPointerLeave
-func gio_onPointerLeave(data unsafe.Pointer, p *C.struct_wl_pointer, serial C.uint32_t, surf *C.struct_wl_surface) {
+func gio_onPointerLeave(data unsafe.Pointer, wlPointer *C.struct_wl_pointer, serial C.uint32_t, surf *C.struct_wl_surface) {
 	w := callbackLoad(unsafe.Pointer(surf)).(*window)
 	s := callbackLoad(data).(*wlSeat)
 	s.serial = serial
@@ -857,6 +864,13 @@ func gio_onPointerLeave(data unsafe.Pointer, p *C.struct_wl_pointer, serial C.ui
 		w.inCompositor = false
 		w.ProcessEvent(pointer.Event{Kind: pointer.Cancel})
 	}
+	// Generate pointer leave event
+	w.ProcessEvent(WindowMouseEvent{
+		Kind:      WindowMouseLeave,
+		Position:  w.lastPos,
+		Time:      time.Duration(serial) * time.Millisecond,
+		Modifiers: w.disp.xkb.Modifiers(),
+	})
 }
 
 //export gio_onPointerMotion
@@ -1249,11 +1263,11 @@ func gio_onKeyboardKey(data unsafe.Pointer, keyboard *C.struct_wl_keyboard, seri
 	kc := mapXKBKeycode(uint32(keyCode))
 	ks := mapXKBKeyState(uint32(state))
 	for _, e := range w.disp.xkb.DispatchKey(kc, ks) {
-		if ee, ok := e.(key.EditEvent); ok {
-			// There's no support for IME yet.
-			w.w.EditorInsert(ee.Text)
-		} else {
-			w.ProcessEvent(e)
+		// Skip EditEvent processing - only process raw key events
+		if ke, ok := e.(key.Event); ok {
+			// Set timestamp from Wayland event
+			ke.Timestamp = int64(timestamp) * 1000000 // Convert to nanoseconds
+			w.ProcessEvent(ke)
 		}
 	}
 	if state != C.WL_KEYBOARD_KEY_STATE_PRESSED {

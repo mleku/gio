@@ -444,9 +444,8 @@ func (q *Router) processEvent(e event.Event, system bool) {
 		q.changeState(e, state, evts)
 	case key.Event:
 		var evts []taggedEvent
-		if q.key.filter.Matches(state.keyState.focus, e, system) {
-			evts = append(evts, taggedEvent{event: e})
-		}
+		// Always deliver key events without filtering
+		evts = append(evts, taggedEvent{event: e})
 		q.changeState(e, state, evts)
 	case key.SnippetEvent:
 		// Expand existing, overlapping snippet.
