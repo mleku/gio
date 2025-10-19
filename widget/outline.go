@@ -101,38 +101,39 @@ func (o *OutlineWidget) drawOutline(gtx app.Context) {
 	}
 }
 
-// drawRectangularOutline draws a rectangular outline
+// drawRectangularOutline draws a rectangular outline using Gio's stroke operations
 func (o *OutlineWidget) drawRectangularOutline(gtx app.Context, bounds image.Rectangle) {
-	// Draw four sides of the rectangle
-	thickness := o.Thickness
+	thickness := float32(o.Thickness)
 
-	// Top edge
-	topRect := image.Rect(bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Min.Y+thickness)
-	defer clip.Rect{Min: topRect.Min, Max: topRect.Max}.Push(gtx.Ops).Pop()
-	paint.Fill(gtx.Ops, o.OutlineColor)
+	// Create a rectangle for the outline
+	r := bounds
 
-	// Bottom edge
-	bottomRect := image.Rect(bounds.Min.X, bounds.Max.Y-thickness, bounds.Max.X, bounds.Max.Y)
-	defer clip.Rect{Min: bottomRect.Min, Max: bottomRect.Max}.Push(gtx.Ops).Pop()
-	paint.Fill(gtx.Ops, o.OutlineColor)
-
-	// Left edge
-	leftRect := image.Rect(bounds.Min.X, bounds.Min.Y, bounds.Min.X+thickness, bounds.Max.Y)
-	defer clip.Rect{Min: leftRect.Min, Max: leftRect.Max}.Push(gtx.Ops).Pop()
-	paint.Fill(gtx.Ops, o.OutlineColor)
-
-	// Right edge
-	rightRect := image.Rect(bounds.Max.X-thickness, bounds.Min.Y, bounds.Max.X, bounds.Max.Y)
-	defer clip.Rect{Min: rightRect.Min, Max: rightRect.Max}.Push(gtx.Ops).Pop()
-	paint.Fill(gtx.Ops, o.OutlineColor)
+	// Draw the outline using Gio's stroke operation
+	paint.FillShape(gtx.Ops,
+		o.OutlineColor,
+		clip.Stroke{
+			Path:  clip.RRect{Rect: r, NW: 0, NE: 0, SW: 0, SE: 0}.Path(gtx.Ops),
+			Width: thickness,
+		}.Op(),
+	)
 }
 
-// drawRoundedOutline draws a rounded rectangle outline
+// drawRoundedOutline draws a rounded rectangle outline using Gio's stroke operations
 func (o *OutlineWidget) drawRoundedOutline(gtx app.Context, bounds image.Rectangle) {
-	// For now, we'll draw a simple rectangular outline
-	// In a more complete implementation, you would use Gio's path operations
-	// to draw rounded corners
-	o.drawRectangularOutline(gtx, bounds)
+	thickness := float32(o.Thickness)
+	radius := float32(o.CornerRadius)
+
+	// Create a rounded rectangle for the outline
+	r := bounds
+
+	// Draw the rounded outline using Gio's stroke operation
+	paint.FillShape(gtx.Ops,
+		o.OutlineColor,
+		clip.Stroke{
+			Path:  clip.RRect{Rect: r, NW: int(radius), NE: int(radius), SW: int(radius), SE: int(radius)}.Path(gtx.Ops),
+			Width: thickness,
+		}.Op(),
+	)
 }
 
 // Fluent methods for OutlineWidget that delegate to the embedded Widget
