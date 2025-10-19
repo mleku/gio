@@ -11,7 +11,7 @@
 // When a user initiates a pointer-guided drag and drop transfer, the
 // source as well as all potential targets receive an InitiateEvent.
 // Potential targets are targets with at least one MIME type in common
-// with the source. When a drag gesture completes, a CancelEvent is sent
+// with the source. When a drag operation completes, a CancelEvent is sent
 // to the source and all potential targets.
 //
 // Note that the RequestEvent is sent to the source upon drop.
@@ -67,7 +67,7 @@ type RequestEvent struct {
 func (RequestEvent) ImplementsEvent() {}
 
 // InitiateEvent is sent to a data source when a drag-and-drop
-// transfer gesture is initiated.
+// transfer operation is initiated.
 //
 // Potential data targets also receive the event.
 type InitiateEvent struct{}

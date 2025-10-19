@@ -26,7 +26,6 @@ import (
 	"gio.mleku.dev/internal/ops"
 	"gio.mleku.dev/internal/scene"
 	"gio.mleku.dev/internal/stroke"
-	"gio.mleku.dev/layout"
 	"gio.mleku.dev/op"
 	"gioui.org/shader"
 	"gioui.org/shader/gio"
@@ -1373,11 +1372,11 @@ func gradientSpaceTransform(clip image.Rectangle, off image.Point, stop1, stop2 
 	// TODO: optimize
 	zp := f32.Point{}
 	return f32.AffineId().
-		Scale(zp, layout.FPt(clip.Size())).                     // scale to pixel space
-		Offset(zp.Sub(f32.FPt(off)).Add(layout.FPt(clip.Min))). // offset to clip space
-		Offset(zp.Sub(stop1)).                                  // offset to first stop point
-		Rotate(zp, a).                                          // rotate to align gradient
-		Scale(zp, f32.Pt(1/l, 1/l))                             // scale gradient to right size
+		Scale(zp, f32.Pt(float32(clip.Size().X), float32(clip.Size().Y))).                  // scale to pixel space
+		Offset(zp.Sub(f32.FPt(off)).Add(f32.Pt(float32(clip.Min.X), float32(clip.Min.Y)))). // offset to clip space
+		Offset(zp.Sub(stop1)).                                                              // offset to first stop point
+		Rotate(zp, a).                                                                      // rotate to align gradient
+		Scale(zp, f32.Pt(1/l, 1/l))                                                         // scale gradient to right size
 }
 
 // clipSpaceTransform returns the scale and offset that transforms the given

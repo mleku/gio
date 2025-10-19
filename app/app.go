@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"gio.mleku.dev/io/input"
-	"gio.mleku.dev/layout"
 	"gio.mleku.dev/op"
 	"gio.mleku.dev/unit"
 )
@@ -88,12 +87,20 @@ type Insets struct {
 //	  WidgetPosition: image.Point{},
 //	}
 //
+// Context provides the minimal context needed for rendering
+type Context struct {
+	Ops    *op.Ops
+	Now    time.Time
+	Source input.Source
+	Metric unit.Metric
+	Size   image.Point
+}
+
 // NewContext calls ops.Reset and adjusts ops for e.Insets.
-func NewContext(ops *op.Ops, e FrameEvent) layout.Context {
+func NewContext(ops *op.Ops, e FrameEvent) Context {
 	ops.Reset()
 
 	size := e.Size
-	widgetOffset := image.Point{}
 
 	if e.Insets != (Insets{}) {
 		left := e.Metric.Dp(e.Insets.Left)
@@ -105,18 +112,14 @@ func NewContext(ops *op.Ops, e FrameEvent) layout.Context {
 
 		size.X -= left + e.Metric.Dp(e.Insets.Right)
 		size.Y -= top + e.Metric.Dp(e.Insets.Bottom)
-		widgetOffset = image.Point{X: left, Y: top}
 	}
 
-	return layout.Context{
-		Ops:              ops,
-		Now:              e.Now,
-		Source:           e.Source,
-		Metric:           e.Metric,
-		Constraints:      layout.Exact(size),
-		WindowDimensions: e.Size,
-		MousePosition:    e.Source.MousePosition(),
-		WidgetPosition:   widgetOffset,
+	return Context{
+		Ops:    ops,
+		Now:    e.Now,
+		Source: e.Source,
+		Metric: e.Metric,
+		Size:   size,
 	}
 }
 

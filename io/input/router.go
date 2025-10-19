@@ -6,7 +6,6 @@ import (
 	"image"
 	"io"
 	"slices"
-	"strings"
 	"time"
 
 	"gio.mleku.dev/f32"
@@ -91,17 +90,8 @@ type SemanticDesc struct {
 	Label       string
 	Selected    bool
 	Disabled    bool
-	Gestures    SemanticGestures
 	Bounds      image.Rectangle
 }
-
-// SemanticGestures is a bit-set of supported gestures.
-type SemanticGestures int
-
-const (
-	ClickGesture SemanticGestures = 1 << iota
-	ScrollGesture
-)
 
 // SemanticID uniquely identifies a SemanticDescription.
 //
@@ -925,14 +915,6 @@ func (q *Router) WakeupTime() (time.Time, bool) {
 		t, w = time.Time{}, true
 	}
 	return t, w
-}
-
-func (s SemanticGestures) String() string {
-	var gestures []string
-	if s&ClickGesture != 0 {
-		gestures = append(gestures, "Click")
-	}
-	return strings.Join(gestures, ",")
 }
 
 func (SystemEvent) ImplementsEvent() {}

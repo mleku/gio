@@ -173,9 +173,9 @@ type window struct {
 	cursor struct {
 		theme  *C.struct_wl_cursor_theme
 		cursor *C.struct_wl_cursor
-		// system is the active cursor for system gestures
+		// system is the active cursor for system interactions
 		// such as border resizes and window moves. It
-		// is nil if the pointer is not in a system gesture
+		// is nil if the pointer is not in a system interaction
 		// area.
 		system  *C.struct_wl_cursor
 		surf    *C.struct_wl_surface
@@ -408,9 +408,12 @@ func (d *wlDisplay) createNativeWindow(options []Option) (*window, error) {
 	C.xdg_surface_add_listener(w.wmSurf, &C.gio_xdg_surface_listener, unsafe.Pointer(w.surf))
 	C.xdg_toplevel_add_listener(w.topLvl, &C.gio_xdg_toplevel_listener, unsafe.Pointer(w.surf))
 
+	// Always use server-side decorations (no CSD)
 	if d.decor != nil {
 		w.decor = C.zxdg_decoration_manager_v1_get_toplevel_decoration(d.decor, w.topLvl)
 		C.zxdg_toplevel_decoration_v1_add_listener(w.decor, &C.gio_zxdg_toplevel_decoration_v1_listener, unsafe.Pointer(w.surf))
+		// Request server-side decorations
+		C.zxdg_toplevel_decoration_v1_set_mode(w.decor, C.ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE)
 	}
 	w.updateOpaqueRegion()
 	return w, nil
@@ -570,23 +573,8 @@ func gio_onToplevelConfigure(data unsafe.Pointer, topLvl *C.struct_xdg_toplevel,
 //export gio_onToplevelDecorationConfigure
 func gio_onToplevelDecorationConfigure(data unsafe.Pointer, deco *C.struct_zxdg_toplevel_decoration_v1, mode C.uint32_t) {
 	w := callbackLoad(data).(*window)
-	decorated := w.config.Decorated
-	switch mode {
-	case C.ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE:
-		w.config.Decorated = false
-	case C.ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE:
-		w.config.Decorated = true
-	}
-	if decorated != w.config.Decorated {
-		w.setWindowConstraints()
-		if w.config.Decorated {
-			w.size.Y -= int(w.config.decoHeight)
-		} else {
-			w.size.Y += int(w.config.decoHeight)
-		}
-		w.ProcessEvent(ConfigEvent{Config: w.config})
-		w.draw(true)
-	}
+	// Always use server-side decorations
+	w.config.Decorated = true
 }
 
 //export gio_onOutputMode
@@ -916,26 +904,13 @@ func gio_onPointerButton(data unsafe.Pointer, p *C.struct_wl_pointer, serial, t,
 	default:
 		return
 	}
-	if state == 1 && btn == pointer.ButtonPrimary {
-		if _, edge := w.systemGesture(); edge != 0 {
-			w.resize(serial, edge)
-			return
-		}
-		act, ok := w.w.ActionAt(w.lastPos)
-		if ok && w.config.Mode == Windowed {
-			switch act {
-			case system.ActionMove:
-				w.move(serial)
-				return
-			}
-		}
-	}
+	// CSD handling removed - using server-side decorations
 	var kind pointer.Kind
 	switch state {
 	case 0:
 		w.pointerBtns &^= btn
 		kind = pointer.Release
-		// Move or resize gestures no longer applies.
+		// Move or resize operations no longer applies.
 		w.inCompositor = false
 	case 1:
 		w.pointerBtns |= btn
@@ -1702,42 +1677,9 @@ func (w *window) onPointerMotion(x, y C.wl_fixed_t, t C.uint32_t) {
 	}
 }
 
-// updateCursor updates the system gesture cursor according to the pointer
-// position.
+// systemGesture is disabled since we use server-side decorations
 func (w *window) systemGesture() (*C.struct_wl_cursor, C.uint32_t) {
-	if w.config.Mode != Windowed || w.config.Decorated {
-		return nil, 0
-	}
-	_, cfg := w.getConfig()
-	border := cfg.Dp(3)
-	x, y, size := int(w.lastPos.X), int(w.lastPos.Y), w.config.Size
-	north := y <= border
-	south := y >= size.Y-border
-	west := x <= border
-	east := x >= size.X-border
-
-	switch {
-	default:
-		fallthrough
-	case !north && !south && !west && !east:
-		return nil, 0
-	case north && west:
-		return w.cursor.cursors.resizeNorthWest, C.XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT
-	case north && east:
-		return w.cursor.cursors.resizeNorthEast, C.XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT
-	case south && west:
-		return w.cursor.cursors.resizeSouthWest, C.XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT
-	case south && east:
-		return w.cursor.cursors.resizeSouthEast, C.XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT
-	case north:
-		return w.cursor.cursors.resizeNorth, C.XDG_TOPLEVEL_RESIZE_EDGE_TOP
-	case south:
-		return w.cursor.cursors.resizeSouth, C.XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM
-	case west:
-		return w.cursor.cursors.resizeWest, C.XDG_TOPLEVEL_RESIZE_EDGE_LEFT
-	case east:
-		return w.cursor.cursors.resizeEast, C.XDG_TOPLEVEL_RESIZE_EDGE_RIGHT
-	}
+	return nil, 0
 }
 
 func (w *window) updateOpaqueRegion() {

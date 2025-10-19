@@ -176,7 +176,7 @@ const (
 )
 
 const (
-	// A Cancel event is generated when the current gesture is
+	// A Cancel event is generated when the current interaction is
 	// interrupted by other handlers or the system.
 	Cancel Kind = 1 << iota
 	// Press of a pointer.

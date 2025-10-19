@@ -8,7 +8,7 @@ import (
 )
 
 // ActionAreaOp makes the current clip area available for
-// system gestures.
+// system interactions.
 //
 // Note: only ActionMove is supported.
 type ActionInputOp Action
