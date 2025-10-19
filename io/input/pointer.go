@@ -128,7 +128,6 @@ type semanticContent struct {
 	label    string
 	desc     string
 	class    semantic.ClassOp
-	gestures SemanticGestures
 	selected bool
 	disabled bool
 }
@@ -484,7 +483,6 @@ func (q *pointerQueue) appendSemanticChildren(nodes []SemanticNode, areaIdx int)
 				Label:       cnt.label,
 				Description: cnt.desc,
 				Class:       cnt.class,
-				Gestures:    cnt.gestures,
 				Selected:    cnt.selected,
 				Disabled:    cnt.disabled,
 			},
@@ -622,13 +620,7 @@ func (q *pointerQueue) Frame(handlers map[event.Tag]*handler, state pointerState
 	for _, h := range handlers {
 		if h.pointer.areaPlusOne != 0 {
 			area := &q.areas[h.pointer.areaPlusOne-1]
-			if h.filter.pointer.kinds&(pointer.Press|pointer.Release) != 0 {
-				area.semantic.content.gestures |= ClickGesture
-			}
-			if h.filter.pointer.kinds&pointer.Scroll != 0 {
-				area.semantic.content.gestures |= ScrollGesture
-			}
-			area.semantic.valid = area.semantic.content.gestures != 0
+			area.semantic.valid = true
 		}
 	}
 	var evts []taggedEvent

@@ -8,15 +8,15 @@ import (
 	"math"
 	"testing"
 
+	"gio.mleku.dev/app"
 	"gio.mleku.dev/f32"
 	"gio.mleku.dev/font/gofont"
 	"gio.mleku.dev/gpu/headless"
-	"gio.mleku.dev/layout"
 	"gio.mleku.dev/op"
 	"gio.mleku.dev/op/clip"
 	"gio.mleku.dev/op/paint"
 	"gio.mleku.dev/text"
-	"gio.mleku.dev/widget/material"
+	"golang.org/x/image/math/fixed"
 )
 
 // use some global variables for benchmarking so as to not pollute
@@ -26,20 +26,19 @@ var (
 	op1, op2, op3 op.Ops
 )
 
-func setupBenchmark(b *testing.B) (layout.Context, *headless.Window, *material.Theme) {
+func setupBenchmark(b *testing.B) (app.Context, *headless.Window, *text.Shaper) {
 	sz := image.Point{X: 1024, Y: 1200}
 	w := newWindow(b, sz.X, sz.Y)
 	ops := new(op.Ops)
-	gtx := layout.Context{
-		Ops:         ops,
-		Constraints: layout.Exact(sz),
+	gtx := app.Context{
+		Ops:  ops,
+		Size: sz,
 	}
-	th := material.NewTheme()
-	th.Shaper = text.NewShaper(text.WithCollection(gofont.Collection()))
-	return gtx, w, th
+	shaper := text.NewShaper(text.WithCollection(gofont.Collection()))
+	return gtx, w, shaper
 }
 
-func resetOps(gtx layout.Context) {
+func resetOps(gtx app.Context) {
 	gtx.Ops.Reset()
 	op1.Reset()
 	op2.Reset()
@@ -156,7 +155,7 @@ func Benchmark1000CirclesInstanced(b *testing.B) {
 	finishBenchmark(b, w)
 }
 
-func draw1000Circles(gtx layout.Context) {
+func draw1000Circles(gtx app.Context) {
 	ops := gtx.Ops
 	for x := range 100 {
 		op.Offset(image.Pt(x*10, 0)).Add(ops)
@@ -170,7 +169,7 @@ func draw1000Circles(gtx layout.Context) {
 	}
 }
 
-func draw1000CirclesInstanced(gtx layout.Context) {
+func draw1000CirclesInstanced(gtx app.Context) {
 	ops := gtx.Ops
 
 	r := op.Record(ops)
@@ -189,17 +188,17 @@ func draw1000CirclesInstanced(gtx layout.Context) {
 	}
 }
 
-func drawCore(gtx layout.Context, th *material.Theme) {
-	c1 := drawIndividualShapes(gtx, th)
-	c2 := drawShapeInstances(gtx, th)
-	c3 := drawText(gtx, th)
+func drawCore(gtx app.Context, shaper *text.Shaper) {
+	c1 := drawIndividualShapes(gtx, shaper)
+	c2 := drawShapeInstances(gtx, shaper)
+	c3 := drawText(gtx, shaper)
 
 	(<-c1).Add(gtx.Ops)
 	(<-c2).Add(gtx.Ops)
 	(<-c3).Add(gtx.Ops)
 }
 
-func drawIndividualShapes(gtx layout.Context, th *material.Theme) chan op.CallOp {
+func drawIndividualShapes(gtx app.Context, shaper *text.Shaper) chan op.CallOp {
 	// draw 81 rounded rectangles of different solid colors - each one individually
 	go func() {
 		ops := &op1
@@ -219,7 +218,7 @@ func drawIndividualShapes(gtx layout.Context, th *material.Theme) chan op.CallOp
 	return c1
 }
 
-func drawShapeInstances(gtx layout.Context, th *material.Theme) chan op.CallOp {
+func drawShapeInstances(gtx app.Context, shaper *text.Shaper) chan op.CallOp {
 	// draw 400 textured circle instances, each with individual transform
 	go func() {
 		ops := &op2
@@ -246,18 +245,32 @@ func drawShapeInstances(gtx layout.Context, th *material.Theme) chan op.CallOp {
 	return c2
 }
 
-func drawText(gtx layout.Context, th *material.Theme) chan op.CallOp {
+func drawText(gtx app.Context, shaper *text.Shaper) chan op.CallOp {
 	// draw 40 lines of text with different transforms.
 	go func() {
 		ops := &op3
 		c := op.Record(ops)
 
-		txt := material.H6(th, "")
 		for x := range 40 {
-			txt.Text = textRows[x]
+			params := text.Parameters{
+				Font:     gofont.Collection()[0].Font,
+				PxPerEm:  fixed.I(16),
+				MaxWidth: 1000,
+			}
+			shaper.LayoutString(params, textRows[x])
+
 			t := op.Offset(image.Pt(0, 24*x)).Push(ops)
-			gtx.Ops = ops
-			txt.Layout(gtx)
+			// Draw the shaped text
+			for {
+				glyph, ok := shaper.NextGlyph()
+				if !ok {
+					break
+				}
+				// Simple text rendering - just draw a rectangle for each glyph
+				paint.FillShape(ops, color.NRGBA{A: 255},
+					clip.Rect(image.Rect(0, 0, int(glyph.Advance>>6), 16)).Op())
+				op.Offset(image.Pt(int(glyph.Advance>>6), 0)).Add(ops)
+			}
 			t.Pop()
 		}
 		c3 <- c.Stop()

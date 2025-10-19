@@ -6,7 +6,6 @@ import (
 	"image"
 	"io"
 	"slices"
-	"strings"
 	"time"
 
 	"gio.mleku.dev/f32"
@@ -91,17 +90,8 @@ type SemanticDesc struct {
 	Label       string
 	Selected    bool
 	Disabled    bool
-	Gestures    SemanticGestures
 	Bounds      image.Rectangle
 }
-
-// SemanticGestures is a bit-set of supported gestures.
-type SemanticGestures int
-
-const (
-	ClickGesture SemanticGestures = 1 << iota
-	ScrollGesture
-)
 
 // SemanticID uniquely identifies a SemanticDescription.
 //
@@ -209,6 +199,15 @@ func (s Source) Event(filters ...event.Filter) (event.Event, bool) {
 		return nil, false
 	}
 	return s.r.Event(filters...)
+}
+
+// MousePosition returns the current mouse position in window coordinates.
+// Returns (0, 0) if no mouse is present or if the mouse is outside the window.
+func (s Source) MousePosition() image.Point {
+	if !s.Enabled() {
+		return image.Point{}
+	}
+	return s.r.MousePosition()
 }
 
 func (q *Router) Event(filters ...event.Filter) (event.Event, bool) {
@@ -445,9 +444,8 @@ func (q *Router) processEvent(e event.Event, system bool) {
 		q.changeState(e, state, evts)
 	case key.Event:
 		var evts []taggedEvent
-		if q.key.filter.Matches(state.keyState.focus, e, system) {
-			evts = append(evts, taggedEvent{event: e})
-		}
+		// Always deliver key events without filtering
+		evts = append(evts, taggedEvent{event: e})
 		q.changeState(e, state, evts)
 	case key.SnippetEvent:
 		// Expand existing, overlapping snippet.
@@ -758,6 +756,21 @@ func (q *Router) Cursor() pointer.Cursor {
 	return q.state().cursor
 }
 
+// MousePosition returns the current mouse position in window coordinates.
+// Returns (0, 0) if no mouse is present or if the mouse is outside the window.
+func (q *Router) MousePosition() image.Point {
+	state := q.state()
+	for _, p := range state.pointers {
+		if p.last.Source == pointer.Mouse {
+			return image.Point{
+				X: int(p.last.Position.X),
+				Y: int(p.last.Position.Y),
+			}
+		}
+	}
+	return image.Point{}
+}
+
 // SemanticAt returns the first semantic description under pos, if any.
 func (q *Router) SemanticAt(pos f32.Point) (SemanticID, bool) {
 	return q.pointer.queue.SemanticAt(pos)
@@ -901,14 +914,6 @@ func (q *Router) WakeupTime() (time.Time, bool) {
 		t, w = time.Time{}, true
 	}
 	return t, w
-}
-
-func (s SemanticGestures) String() string {
-	var gestures []string
-	if s&ClickGesture != 0 {
-		gestures = append(gestures, "Click")
-	}
-	return strings.Join(gestures, ",")
 }
 
 func (SystemEvent) ImplementsEvent() {}

@@ -4,7 +4,6 @@ package app
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	"image/color"
 	"runtime"
@@ -13,7 +12,6 @@ import (
 	"unicode/utf8"
 
 	"gio.mleku.dev/f32"
-	"gio.mleku.dev/font/gofont"
 	"gio.mleku.dev/gpu"
 	"gio.mleku.dev/internal/debug"
 	"gio.mleku.dev/internal/ops"
@@ -22,12 +20,9 @@ import (
 	"gio.mleku.dev/io/key"
 	"gio.mleku.dev/io/pointer"
 	"gio.mleku.dev/io/system"
-	"gio.mleku.dev/layout"
 	"gio.mleku.dev/op"
-	"gio.mleku.dev/text"
 	"gio.mleku.dev/unit"
-	"gio.mleku.dev/widget"
-	"gio.mleku.dev/widget/material"
+	"lol.mleku.dev/log"
 )
 
 // Option configures a window.
@@ -73,8 +68,6 @@ type Window struct {
 		Config
 		height        unit.Dp
 		currentHeight int
-		*material.Theme
-		*widget.Decorations
 	}
 	nocontext bool
 	// semantic data, lazily evaluated if requested by a backend to speed up
@@ -116,16 +109,11 @@ type eventSummary struct {
 	frame        *frameEvent
 	framePending bool
 	destroy      *DestroyEvent
+	windowMouse  *WindowMouseEvent
 }
 
 type callbacks struct {
 	w *Window
-}
-
-func decoHeightOpt(h unit.Dp) Option {
-	return func(m unit.Metric, c *Config) {
-		c.decoHeight = h
-	}
 }
 
 func (w *Window) validateAndProcess(size image.Point, sync bool, frame *op.Ops, sigChan chan<- struct{}) error {
@@ -253,14 +241,14 @@ func (w *Window) updateState() {
 		w.driver.WriteClipboard(mime, txt)
 	}
 	if txt, ok := q.WritePrimaryClipboard(); ok {
-		fmt.Printf("📤 APP: Writing to primary clipboard: %q\n", txt)
+		log.I.F("📤 APP: Writing to primary clipboard: %q\n", txt)
 		w.driver.WritePrimaryClipboard(txt)
 	}
 	if q.ClipboardRequested() {
 		w.driver.ReadClipboard()
 	}
 	if q.PrimaryClipboardRequested() {
-		fmt.Println("📥 APP: Reading from primary clipboard")
+		log.I.Ln("📥 APP: Reading from primary clipboard")
 		w.driver.ReadPrimaryClipboard()
 	}
 	oldState := w.imeState
@@ -309,11 +297,7 @@ func (w *Window) Option(opts ...Option) {
 			opt(w.metric, &cnf)
 		}
 		w.decorations.enabled = cnf.Decorated
-		decoHeight := w.decorations.height
-		if !w.decorations.enabled {
-			decoHeight = 0
-		}
-		opts = append(opts, decoHeightOpt(decoHeight))
+		// Using server-side decorations, no height option needed
 		w.driver.Configure(opts)
 		w.setNextFrame(time.Time{})
 		w.updateAnimation()
@@ -591,6 +575,10 @@ func (w *Window) nextEvent() (event.Event, bool) {
 		e := *s.cfg
 		s.cfg = nil
 		return e, true
+	case s.windowMouse != nil:
+		e := *s.windowMouse
+		s.windowMouse = nil
+		return e, true
 	case s.frame != nil:
 		e := *s.frame
 		s.frame = nil
@@ -666,7 +654,7 @@ func (w *Window) processEvent(e event.Event) bool {
 		}
 		w.coalesced.view = &e2
 	case ConfigEvent:
-		w.decorations.Decorations.Maximized = e2.Config.Mode == Maximized
+		// Using server-side decorations, no client-side decoration state needed
 		wasFocused := w.decorations.Config.Focused
 		w.decorations.Config = e2.Config
 		e2.Config = w.effectiveConfig()
@@ -680,35 +668,14 @@ func (w *Window) processEvent(e event.Event) bool {
 			w.updateAnimation()
 		}
 		return handled
+	case WindowMouseEvent:
+		// Window-level mouse enter/leave events are handled directly by the application
+		// They don't need to go through the input queue
+		w.coalesced.windowMouse = &e2
 	case event.Event:
-		focusDir := key.FocusDirection(-1)
-		if e, ok := e2.(key.Event); ok && e.State == key.Press {
-			isMobile := runtime.GOOS == "ios" || runtime.GOOS == "android"
-			switch {
-			case e.Name == key.NameTab && e.Modifiers == 0:
-				focusDir = key.FocusForward
-			case e.Name == key.NameTab && e.Modifiers == key.ModShift:
-				focusDir = key.FocusBackward
-			case e.Name == key.NameUpArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusUp
-			case e.Name == key.NameDownArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusDown
-			case e.Name == key.NameLeftArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusLeft
-			case e.Name == key.NameRightArrow && e.Modifiers == 0 && isMobile:
-				focusDir = key.FocusRight
-			}
-		}
-		e := e2
-		if focusDir != -1 {
-			e = input.SystemEvent{Event: e}
-		}
-		w.queue.Queue(e)
+		// Skip focus navigation processing - just pass through raw events
+		w.queue.Queue(e2)
 		t, handled := w.queue.WakeupTime()
-		if focusDir != -1 && !handled {
-			w.moveFocus(focusDir)
-			t, handled = w.queue.WakeupTime()
-		}
 		w.updateCursor()
 		if handled {
 			w.setNextFrame(t)
@@ -738,25 +705,11 @@ func (w *Window) Event() event.Event {
 
 func (w *Window) init() {
 	debug.Parse()
-	// Measure decoration height.
-	deco := new(widget.Decorations)
-	theme := material.NewTheme()
-	theme.Shaper = text.NewShaper(text.NoSystemFonts(), text.WithCollection(gofont.Regular()))
-	decoStyle := material.Decorations(theme, deco, 0, "")
-	gtx := layout.Context{
-		Ops: new(op.Ops),
-		// Measure in Dp.
-		Metric: unit.Metric{},
-	}
-	// Allow plenty of space.
-	gtx.Constraints.Max.Y = 200
-	dims := decoStyle.Layout(gtx)
-	decoHeight := unit.Dp(dims.Size.Y)
+	// Using server-side decorations, no height measurement needed
 	defaultOptions := []Option{
 		Size(800, 600),
 		Title("Gio"),
 		Decorated(true),
-		decoHeightOpt(decoHeight),
 	}
 	options := append(defaultOptions, w.initialOpts...)
 	w.initialOpts = nil
@@ -764,10 +717,8 @@ func (w *Window) init() {
 	cnf.apply(unit.Metric{}, options)
 
 	w.nocontext = cnf.CustomRenderer
-	w.decorations.Theme = theme
-	w.decorations.Decorations = deco
+	// Using server-side decorations, no client-side decoration setup needed
 	w.decorations.enabled = cnf.Decorated
-	w.decorations.height = decoHeight
 	w.imeState.compose = key.Range{Start: -1, End: -1}
 	w.semantic.ids = make(map[input.SemanticID]input.SemanticNode)
 	newWindow(&callbacks{w}, options)
@@ -791,50 +742,8 @@ func (w *Window) fallbackDecorate() bool {
 
 // decorate the window if enabled and returns the corresponding Insets.
 func (w *Window) decorate(e FrameEvent, o *op.Ops) image.Point {
-	if !w.fallbackDecorate() {
-		return image.Pt(0, 0)
-	}
-	deco := w.decorations.Decorations
-	allActions := system.ActionMinimize | system.ActionMaximize | system.ActionUnmaximize |
-		system.ActionClose | system.ActionMove
-	style := material.Decorations(w.decorations.Theme, deco, allActions, w.decorations.Config.Title)
-	// Update the decorations based on the current window mode.
-	var actions system.Action
-	switch m := w.decorations.Config.Mode; m {
-	case Windowed:
-		actions |= system.ActionUnmaximize
-	case Minimized:
-		actions |= system.ActionMinimize
-	case Maximized:
-		actions |= system.ActionMaximize
-	case Fullscreen:
-		actions |= system.ActionFullscreen
-	default:
-		panic(fmt.Errorf("unknown WindowMode %v", m))
-	}
-	gtx := layout.Context{
-		Ops:         o,
-		Now:         e.Now,
-		Source:      e.Source,
-		Metric:      e.Metric,
-		Constraints: layout.Exact(e.Size),
-	}
-	// Update the window based on the actions on the decorations.
-	opts, acts := splitActions(deco.Update(gtx))
-	if len(opts) > 0 {
-		w.driver.Configure(opts)
-	}
-	if acts != 0 {
-		w.driver.Perform(acts)
-	}
-	style.Layout(gtx)
-	// Offset to place the frame content below the decorations.
-	decoHeight := gtx.Dp(w.decorations.Config.decoHeight)
-	if w.decorations.currentHeight != decoHeight {
-		w.decorations.currentHeight = decoHeight
-		w.coalesced.cfg = &ConfigEvent{Config: w.effectiveConfig()}
-	}
-	return image.Pt(0, decoHeight)
+	// Using server-side decorations, no client-side decoration needed
+	return image.Pt(0, 0)
 }
 
 func (w *Window) effectiveConfig() Config {
@@ -979,6 +888,24 @@ func Decorated(enabled bool) Option {
 type flushEvent struct{}
 
 func (t flushEvent) ImplementsEvent() {}
+
+// WindowMouseEvent represents a window-level mouse enter/leave event.
+type WindowMouseEvent struct {
+	Kind      WindowMouseKind
+	Position  f32.Point
+	Time      time.Duration
+	Modifiers key.Modifiers
+}
+
+// WindowMouseKind represents the type of window-level mouse event.
+type WindowMouseKind int
+
+const (
+	WindowMouseEnter WindowMouseKind = iota
+	WindowMouseLeave
+)
+
+func (WindowMouseEvent) ImplementsEvent() {}
 
 // theFlushEvent avoids allocating garbage when sending
 // flushEvents.

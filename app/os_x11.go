@@ -46,6 +46,7 @@ import (
 	"gio.mleku.dev/io/transfer"
 	"gio.mleku.dev/op"
 	"gio.mleku.dev/unit"
+	"lol.mleku.dev/log"
 
 	syscall "golang.org/x/sys/unix"
 
@@ -157,7 +158,7 @@ func (w *x11Window) ReadClipboard() {
 }
 
 func (w *x11Window) ReadPrimaryClipboard() {
-	fmt.Println("🔍 X11: Reading primary clipboard")
+	log.I.Ln("🔍 X11: Reading primary clipboard")
 	C.XDeleteProperty(w.x, w.xw, w.atoms.clipboardContent)
 	C.XConvertSelection(w.x, w.atoms.primary, w.atoms.utf8string, w.atoms.clipboardContent, w.xw, C.CurrentTime)
 }
@@ -196,7 +197,7 @@ func (w *x11Window) GetPrimaryClipboard() string {
 }
 
 func (w *x11Window) WritePrimaryClipboard(text string) {
-	fmt.Printf("💾 X11: Writing to primary clipboard: %q\n", text)
+	log.I.F("💾 X11: Writing to primary clipboard: %q\n", text)
 	w.clipboard.content = []byte(text)
 	C.XSetSelectionOwner(w.x, w.atoms.primary, w.xw, C.CurrentTime)
 }
@@ -609,11 +610,11 @@ func (h *x11EventHandler) handleEvents() bool {
 			}
 			kevt := (*C.XKeyPressedEvent)(unsafe.Pointer(xev))
 			for _, e := range h.w.xkb.DispatchKey(uint32(kevt.keycode), ks) {
-				if ee, ok := e.(key.EditEvent); ok {
-					// There's no support for IME yet.
-					w.w.EditorInsert(ee.Text)
-				} else {
-					w.ProcessEvent(e)
+				// Skip EditEvent processing - only process raw key events
+				if ke, ok := e.(key.Event); ok {
+					// Set timestamp from X event
+					ke.Timestamp = int64(kevt.time) * 1000000 // Convert to nanoseconds
+					w.ProcessEvent(ke)
 				}
 			}
 		case C.ButtonPress, C.ButtonRelease:
@@ -683,6 +684,28 @@ func (h *x11EventHandler) handleEvents() bool {
 				Time:      time.Duration(mevt.time) * time.Millisecond,
 				Modifiers: w.xkb.Modifiers(),
 			})
+		case C.EnterNotify:
+			eevt := (*C.XCrossingEvent)(unsafe.Pointer(xev))
+			w.ProcessEvent(WindowMouseEvent{
+				Kind: WindowMouseEnter,
+				Position: f32.Point{
+					X: float32(eevt.x),
+					Y: float32(eevt.y),
+				},
+				Time:      time.Duration(eevt.time) * time.Millisecond,
+				Modifiers: w.xkb.Modifiers(),
+			})
+		case C.LeaveNotify:
+			eevt := (*C.XCrossingEvent)(unsafe.Pointer(xev))
+			w.ProcessEvent(WindowMouseEvent{
+				Kind: WindowMouseLeave,
+				Position: f32.Point{
+					X: float32(eevt.x),
+					Y: float32(eevt.y),
+				},
+				Time:      time.Duration(eevt.time) * time.Millisecond,
+				Modifiers: w.xkb.Modifiers(),
+			})
 		case C.Expose: // update
 			// redraw only on the last expose event
 			redraw = (*C.XExposeEvent)(unsafe.Pointer(xev)).count == 0
@@ -711,9 +734,9 @@ func (h *x11EventHandler) handleEvents() bool {
 
 			// Debug which clipboard we're receiving data from
 			if cevt.selection == w.atoms.primary {
-				fmt.Println("📥 X11: Received primary clipboard data")
+				log.I.Ln("📥 X11: Received primary clipboard data")
 			} else {
-				fmt.Println("📥 X11: Received regular clipboard data")
+				log.I.Ln("📥 X11: Received regular clipboard data")
 			}
 			var text C.XTextProperty
 			if st := C.XGetTextProperty(w.x, w.xw, &text, prop); st == 0 {
@@ -725,7 +748,7 @@ func (h *x11EventHandler) handleEvents() bool {
 				break
 			}
 			str := C.GoStringN((*C.char)(unsafe.Pointer(text.value)), C.int(text.nitems))
-			fmt.Printf("📄 X11: Clipboard content: %q (length: %d)\n", str, len(str))
+			log.I.F("📄 X11: Clipboard content: %q (length: %d)\n", str, len(str))
 			w.ProcessEvent(transfer.DataEvent{
 				Type: "application/text",
 				Open: func() io.ReadCloser {
@@ -848,6 +871,7 @@ func newX11Window(gioWin *callbacks, options []Option) error {
 			C.KeyPressMask | C.KeyReleaseMask | // keyboard
 			C.ButtonPressMask | C.ButtonReleaseMask | // mouse clicks
 			C.PointerMotionMask | // mouse movement
+			C.EnterWindowMask | C.LeaveWindowMask | // mouse enter/leave
 			C.StructureNotifyMask, // resize
 		background_pixmap: C.None,
 		override_redirect: C.False,

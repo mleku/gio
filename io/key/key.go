@@ -96,6 +96,10 @@ type Event struct {
 	Modifiers Modifiers
 	// State is the state of the key when the event was fired.
 	State State
+	// KeyCode is the raw platform-specific keycode.
+	KeyCode uint32
+	// Timestamp is when the event occurred.
+	Timestamp int64
 }
 
 // An EditEvent requests an edit by an input method.

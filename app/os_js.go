@@ -352,6 +352,8 @@ func (w *window) keyEvent(e js.Value, ks key.State) {
 			Name:      n,
 			Modifiers: modifiersFor(e),
 			State:     ks,
+			KeyCode:   uint32(e.Get("keyCode").Int()),
+			Timestamp: int64(e.Get("timeStamp").Int()) * 1000000, // Convert to nanoseconds
 		}
 		w.processEvent(cmd)
 	}

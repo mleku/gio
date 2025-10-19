@@ -4,144 +4,43 @@
 package main
 
 import (
-	"fmt"
-	"image"
 	"image/color"
-	"log"
+	"os"
 
 	"gio.mleku.dev/app"
-	"gio.mleku.dev/io/event"
 	"gio.mleku.dev/io/pointer"
-	"gio.mleku.dev/layout"
 	"gio.mleku.dev/op"
-	"gio.mleku.dev/op/clip"
 	"gio.mleku.dev/op/paint"
+	"lol.mleku.dev/log"
 )
 
 func main() {
 	go func() {
 		w := new(app.Window)
 		if err := loop(w); err != nil {
-			log.Fatal(err)
+			log.F.Ln(err)
+			os.Exit(1)
 		}
 	}()
 	app.Main()
 }
 
-type notifyFrame int
-
-const (
-	notifyNone notifyFrame = iota
-	notifyInvalidate
-	notifyPrint
-)
-
-// notify keeps track of whether we want to print to stdout to notify the user
-// when a frame is ready. Initially we want to notify about the first frame.
-var notify = notifyInvalidate
-
-type (
-	C = layout.Context
-	D = layout.Dimensions
-)
-
 func loop(w *app.Window) error {
-	topLeft := quarterWidget{
-		color: color.NRGBA{R: 0xde, G: 0xad, B: 0xbe, A: 0xff},
-	}
-	topRight := quarterWidget{
-		color: color.NRGBA{R: 0xff, G: 0xff, B: 0xff, A: 0xff},
-	}
-	botLeft := quarterWidget{
-		color: color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xff},
-	}
-	botRight := quarterWidget{
-		color: color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0x80},
-	}
-
 	var ops op.Ops
 	for {
-		e := w.Event()
-		switch e := e.(type) {
+		switch e := w.Event().(type) {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
-			// Clear background to white, even on embedded platforms such as webassembly.
-			paint.Fill(gtx.Ops, color.NRGBA{A: 0xff, R: 0xff, G: 0xff, B: 0xff})
-			layout.Flex{Axis: layout.Vertical}.Layout(gtx,
-				layout.Flexed(1, func(gtx C) D {
-					return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
-						// r1c1
-						layout.Flexed(1, func(gtx C) D { return topLeft.Layout(gtx) }),
-						// r1c2
-						layout.Flexed(1, func(gtx C) D { return topRight.Layout(gtx) }),
-					)
-				}),
-				layout.Flexed(1, func(gtx C) D {
-					return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
-						// r2c1
-						layout.Flexed(1, func(gtx C) D { return botLeft.Layout(gtx) }),
-						// r2c2
-						layout.Flexed(1, func(gtx C) D { return botRight.Layout(gtx) }),
-					)
-				}),
-			)
+
+			// Paint black background
+			paint.Fill(gtx.Ops, color.NRGBA{R: 0, G: 0, B: 0, A: 255})
 
 			e.Frame(gtx.Ops)
-
-			switch notify {
-			case notifyInvalidate:
-				notify = notifyPrint
-				w.Invalidate()
-			case notifyPrint:
-				notify = notifyNone
-				fmt.Println("gio frame ready")
-			}
+		case pointer.Event:
+			// Log mouse events
+			log.I.F("Mouse event: %+v\n", e)
 		}
 	}
-}
-
-// quarterWidget paints a quarter of the screen with one color. When clicked, it
-// turns red, going back to its normal color when clicked again.
-type quarterWidget struct {
-	color color.NRGBA
-
-	clicked bool
-}
-
-var red = color.NRGBA{R: 0xff, G: 0x00, B: 0x00, A: 0xff}
-
-func (w *quarterWidget) Layout(gtx layout.Context) layout.Dimensions {
-	var color color.NRGBA
-	if w.clicked {
-		color = red
-	} else {
-		color = w.color
-	}
-
-	r := image.Rectangle{Max: gtx.Constraints.Max}
-	paint.FillShape(gtx.Ops, color, clip.Rect(r).Op())
-
-	defer clip.Rect(image.Rectangle{
-		Max: image.Pt(gtx.Constraints.Max.X, gtx.Constraints.Max.Y),
-	}).Push(gtx.Ops).Pop()
-	event.Op(gtx.Ops, w)
-	filter := pointer.Filter{
-		Target: w,
-		Kinds:  pointer.Press,
-	}
-
-	for {
-		e, ok := gtx.Event(filter)
-		if !ok {
-			break
-		}
-		if e, ok := e.(pointer.Event); ok && e.Kind == pointer.Press {
-			w.clicked = !w.clicked
-			// notify when we're done updating the frame.
-			notify = notifyInvalidate
-		}
-	}
-	return layout.Dimensions{Size: gtx.Constraints.Max}
 }

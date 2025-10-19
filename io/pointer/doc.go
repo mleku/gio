@@ -99,10 +99,10 @@ Handlers know their position in a matching set of a pointer through
 event priorities. The Shared priority is for matching sets with
 multiple handlers; the Grabbed priority indicate exclusive access.
 
-Priorities are useful for deferred gesture matching.
+Priorities are useful for deferred interaction matching.
 
 Consider a scrollable list of clickable elements. When the user touches an
-element, it is unknown whether the gesture is a click on the element
+element, it is unknown whether the interaction is a click on the element
 or a drag (scroll) of the list. While the click handler might light up
 the element in anticipation of a click, the scrolling handler does not
 scroll on finger movements with lower than Grabbed priority.
@@ -110,7 +110,7 @@ scroll on finger movements with lower than Grabbed priority.
 Should the user release the finger, the click handler registers a click.
 
 However, if the finger moves beyond a threshold, the scrolling handler
-determines that the gesture is a drag and sets its Grab flag. The
+determines that the interaction is a drag and sets its Grab flag. The
 click handler receives a Cancel (removing the highlight) and further
 movements for the scroll handler has priority Grabbed, scrolling the
 list.

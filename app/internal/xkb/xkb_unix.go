@@ -11,8 +11,6 @@ import (
 	"fmt"
 	"os"
 	"syscall"
-	"unicode"
-	"unicode/utf8"
 	"unsafe"
 
 	"gio.mleku.dev/io/event"
@@ -36,7 +34,6 @@ type Context struct {
 	state     *C.struct_xkb_state
 	compTable *C.struct_xkb_compose_table
 	compState *C.struct_xkb_compose_state
-	utf8Buf   []byte
 }
 
 var (
@@ -160,15 +157,16 @@ func (x *Context) DispatchKey(keyCode uint32, state key.State) (events []event.E
 		return
 	}
 	kc := C.xkb_keycode_t(keyCode)
-	if len(x.utf8Buf) == 0 {
-		x.utf8Buf = make([]byte, 1)
-	}
+
+	// Only create raw key events, skip all text processing
 	sym := C.xkb_state_key_get_one_sym(x.state, kc)
 	if name, ok := convertKeysym(sym); ok {
 		cmd := key.Event{
 			Name:      name,
 			Modifiers: x.Modifiers(),
 			State:     state,
+			KeyCode:   keyCode,
+			Timestamp: 0, // Will be set by platform-specific code
 		}
 		// Ensure that a physical backtab key is translated to
 		// Shift-Tab.
@@ -177,49 +175,9 @@ func (x *Context) DispatchKey(keyCode uint32, state key.State) (events []event.E
 		}
 		events = append(events, cmd)
 	}
-	C.xkb_compose_state_feed(x.compState, sym)
-	var str []byte
-	switch C.xkb_compose_state_get_status(x.compState) {
-	case C.XKB_COMPOSE_CANCELLED, C.XKB_COMPOSE_COMPOSING:
-		return
-	case C.XKB_COMPOSE_COMPOSED:
-		size := C.xkb_compose_state_get_utf8(x.compState, (*C.char)(unsafe.Pointer(&x.utf8Buf[0])), C.size_t(len(x.utf8Buf)))
-		if int(size) >= len(x.utf8Buf) {
-			x.utf8Buf = make([]byte, size+1)
-			size = C.xkb_compose_state_get_utf8(x.compState, (*C.char)(unsafe.Pointer(&x.utf8Buf[0])), C.size_t(len(x.utf8Buf)))
-		}
-		C.xkb_compose_state_reset(x.compState)
-		str = x.utf8Buf[:size]
-	case C.XKB_COMPOSE_NOTHING:
-		mod := x.Modifiers()
-		if mod&(key.ModCtrl|key.ModAlt|key.ModSuper) == 0 {
-			str = x.charsForKeycode(kc)
-		}
-	}
-	// Report only printable runes.
-	var n int
-	for n < len(str) {
-		r, s := utf8.DecodeRune(str)
-		if unicode.IsPrint(r) {
-			n += s
-		} else {
-			copy(str[n:], str[n+s:])
-			str = str[:len(str)-s]
-		}
-	}
-	if state == key.Press && len(str) > 0 {
-		events = append(events, key.EditEvent{Text: string(str)})
-	}
-	return
-}
 
-func (x *Context) charsForKeycode(keyCode C.xkb_keycode_t) []byte {
-	size := C.xkb_state_key_get_utf8(x.state, keyCode, (*C.char)(unsafe.Pointer(&x.utf8Buf[0])), C.size_t(len(x.utf8Buf)))
-	if int(size) >= len(x.utf8Buf) {
-		x.utf8Buf = make([]byte, size+1)
-		size = C.xkb_state_key_get_utf8(x.state, keyCode, (*C.char)(unsafe.Pointer(&x.utf8Buf[0])), C.size_t(len(x.utf8Buf)))
-	}
-	return x.utf8Buf[:size]
+	// Skip all compose sequence and text processing
+	return
 }
 
 func (x *Context) IsRepeatKey(keyCode uint32) bool {

@@ -180,6 +180,16 @@ func (w *window) init() error {
 	if err := windows.EnableMouseInPointer(1); err != nil {
 		return err
 	}
+	// Enable mouse leave tracking
+	tme := windows.TrackMouseEvent{
+		CbSize:      uint32(unsafe.Sizeof(windows.TrackMouseEvent{})),
+		DwFlags:     windows.TME_LEAVE,
+		HwndTrack:   hwnd,
+		DwHoverTime: 0xFFFFFFFF, // HOVER_DEFAULT
+	}
+	if err := windows.TrackMouseEvent(&tme); err != nil {
+		return err
+	}
 	w.hdc, err = windows.GetDC(hwnd)
 	if err != nil {
 		windows.DestroyWindow(hwnd)
@@ -257,6 +267,8 @@ func windowProc(hwnd syscall.Handle, msg uint32, wParam, lParam uintptr) uintptr
 				Name:      n,
 				Modifiers: getModifiers(),
 				State:     key.Press,
+				KeyCode:   uint32(wParam),
+				Timestamp: time.Now().UnixNano(),
 			}
 			if msg == windows.WM_KEYUP || msg == windows.WM_SYSKEYUP {
 				e.State = key.Release
@@ -319,6 +331,26 @@ func windowProc(hwnd syscall.Handle, msg uint32, wParam, lParam uintptr) uintptr
 		w.scrollEvent(wParam, lParam, false, getModifiers())
 	case windows.WM_POINTERHWHEEL:
 		w.scrollEvent(wParam, lParam, true, getModifiers())
+	case windows.WM_MOUSELEAVE:
+		w.ProcessEvent(WindowMouseEvent{
+			Kind:      WindowMouseLeave,
+			Time:      windows.GetMessageTime(),
+			Modifiers: getModifiers(),
+		})
+		// Re-enable mouse leave tracking
+		tme := windows.TrackMouseEvent{
+			CbSize:      uint32(unsafe.Sizeof(windows.TrackMouseEvent{})),
+			DwFlags:     windows.TME_LEAVE,
+			HwndTrack:   hwnd,
+			DwHoverTime: 0xFFFFFFFF, // HOVER_DEFAULT
+		}
+		windows.TrackMouseEvent(&tme)
+	case windows.WM_MOUSEENTER:
+		w.ProcessEvent(WindowMouseEvent{
+			Kind:      WindowMouseEnter,
+			Time:      windows.GetMessageTime(),
+			Modifiers: getModifiers(),
+		})
 	case windows.WM_DESTROY:
 		w.ProcessEvent(Win32ViewEvent{})
 		w.ProcessEvent(DestroyEvent{})
