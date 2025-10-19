@@ -25,6 +25,11 @@ func NewFillWidget() *FillWidget {
 	}
 }
 
+// Fill creates a new fill widget (fluent constructor)
+func Fill() *FillWidget {
+	return NewFillWidget()
+}
+
 // Color sets the fill color
 func (f *FillWidget) Color(color color.NRGBA) *FillWidget {
 	f.FillColor = color
@@ -63,20 +68,20 @@ func (f *FillWidget) RenderWidget(gtx app.Context) {
 
 // Fluent methods for FillWidget that delegate to the embedded Widget
 
-// SetPosition sets the fill widget's position
-func (f *FillWidget) SetPosition(x, y int) *FillWidget {
+// Position sets the fill widget's position
+func (f *FillWidget) Position(x, y int) *FillWidget {
 	f.Widget.SetPosition(x, y)
 	return f
 }
 
-// SetSize sets the fill widget's size
-func (f *FillWidget) SetSize(width, height int) *FillWidget {
+// Size sets the fill widget's size
+func (f *FillWidget) Size(width, height int) *FillWidget {
 	f.Widget.SetSize(width, height)
 	return f
 }
 
-// SetVisible sets the fill widget's visibility
-func (f *FillWidget) SetVisible(visible bool) *FillWidget {
+// Show sets the fill widget's visibility
+func (f *FillWidget) Show(visible bool) *FillWidget {
 	f.Widget.SetVisible(visible)
 	return f
 }

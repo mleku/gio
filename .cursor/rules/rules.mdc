@@ -1,0 +1,18 @@
+---
+alwaysApply: true
+---
+always use named returns, always, prefer to use naked returns unless it is more verbose, or the semantics should explicitly set a return value
+
+always check that changes compile before submitting
+
+if the problem relates to user interaction to trigger logging, make the window stay open and expect to see logs about closing things sometimes
+
+don't say "you are right" or "i see now" or decorate your paragraphs with interjections
+
+always consult the gio, gio-example and gio-x repositories for clues how to do something
+
+don't put a big long summary at the end
+
+always use web searches if local resources aren't helping
+
+always use fluent chained method idiom for layouts always
